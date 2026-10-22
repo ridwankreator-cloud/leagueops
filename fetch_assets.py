@@ -26,6 +26,11 @@ def write(path, text):
     with open(path, "w", encoding="utf-8") as f:
         f.write(text)
 
+def write(path, text):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+
 # ---- Font Awesome ----
 css = get(f"{FA_BASE}/css/all.min.css").decode("utf-8")
 names = set(re.findall(r"url\(\.\./webfonts/([^)\"']+)\)", css))
