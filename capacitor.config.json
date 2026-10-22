@@ -1,0 +1,8 @@
+{
+  "appId": "com.leagueops.desk",
+  "appName": "League Ops Desk",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  }
+}

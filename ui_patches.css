@@ -1,0 +1,744 @@
+/* ============================================================
+   UI PATCHES -- GABUNGAN
+   File ini gabungan dari beberapa patch CSS terpisah (sekarang
+   jadi 1 file biar gak kebanyakan file lepas). Tiap bagian masih
+   dipisah jelas per fitur -- kalau mau rollback SATU fitur aja,
+   tinggal hapus section-nya (dari komentar "=== MULAI ===" sampai
+   "=== SELESAI ==="), gak perlu hapus semua.
+   ============================================================ */
+
+/* ============================================================
+   === MULAI: HASIL MATCH FULLSCREEN ===
+   (asalnya: hasil_match_fullscreen_patch.css)
+   ============================================================ */
+/* ==========================================
+   HASIL MATCH — FULLSCREEN PATCH
+   Sebelumnya: bottom-sheet (max-height:90vh), nyisa celah di atas
+   yang bisa nampilin/numpuk konten dashboard di belakang pas discroll.
+   Sekarang: full layar (inset:0), header skor di-sticky dengan bg
+   solid + shadow yang baru muncul pas discroll, dan header/score/MVP
+   dirapihin (pill Victory/Defeat, logo lebih besar, tombol close).
+
+   Rollback: hapus <link> ke file ini di index.html.
+   ========================================== */
+
+#modalHasilMatch {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+    background: var(--bg-base);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    overflow: hidden;
+}
+
+#modalHasilMatch .modal-hasil-sheet {
+    position: absolute;
+    inset: 0;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+    animation: hasilFullscreenFadeIn 0.22s var(--ease);
+}
+#modalHasilMatch .modal-hasil-sheet::before { display: none; }
+@keyframes hasilFullscreenFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Header: topbar (close + judul) + skor, pinned & solid */
+.hasil-header-patch {
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--surface-2);
+    padding-top: env(safe-area-inset-top);
+    border-bottom: 1px solid var(--border);
+    transition: box-shadow 0.2s var(--ease);
+}
+.hasil-header-patch.di-scroll-patch {
+    box-shadow: 0 6px 18px rgba(18,21,28,0.10);
+}
+.hasil-topbar-patch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 2px;
+}
+.hasil-btn-close-patch {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--surface-4);
+    border: none;
+    color: var(--text-2);
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+}
+.hasil-title-patch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-display);
+    color: var(--text-3);
+    font-weight: 700;
+}
+.hasil-title-text-patch {
+    font-size: 10.5px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+}
+.hasil-topbar-spacer-patch { width: 30px; }
+
+/* ==========================================
+   ICON PATCH -- ganti emoji jadi Font Awesome
+   (emoji dicampur teks ber-letter-spacing suka
+   ke-geser/numpuk di sebagian WebView Android)
+   ========================================== */
+.hasil-icon-patch {
+    display: inline-block;
+    font-size: 0.95em;
+    vertical-align: -1px;
+}
+.hasil-mvp-box__icon .hasil-icon-patch { color: #fff; }
+
+/* Skor row -- dipindah ke dalam header-patch (masih #hasilMatchSkor yg sama) */
+#modalHasilMatch #hasilMatchSkor {
+    padding: 6px 20px 16px;
+    gap: 14px;
+    border-bottom: none;
+    background: transparent;
+}
+.hasil-team-col-patch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+}
+.hasil-team-label-patch {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: var(--font-display);
+    padding: 2px 9px;
+    border-radius: 99px;
+    background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.hasil-team-logo-patch {
+    width: 52px; height: 52px;
+    border-radius: var(--radius);
+    object-fit: cover;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+}
+.hasil-team-name-patch {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-1);
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.hasil-skor-center-patch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0 6px;
+    flex-shrink: 0;
+}
+
+/* MVP box: sedikit dirapihin biar nyambung sama header baru */
+#modalHasilMatch .hasil-mvp-box { margin-top: 2px; margin-bottom: 18px; }
+
+/* Scroll body: pastiin gak ada celah bawah/atas yang nampilin bg belakang */
+#modalHasilMatch .hasil-scroll-body { padding: 16px 14px calc(16px + env(safe-area-inset-bottom)); }
+
+/* Tombol bawah: samain bg-nya sama header biar konsisten & solid */
+#modalHasilMatch .hasil-btn-wrap {
+    background: var(--surface-2);
+    padding: 10px 16px max(16px, env(safe-area-inset-bottom));
+}
+
+/* === SELESAI: HASIL MATCH FULLSCREEN === */
+
+/* ============================================================
+   === MULAI: EMAIL MODAL (UNDANGAN TRIAL DKK) ===
+   (asalnya: email_modal_patch.css)
+   ============================================================ */
+/* ==========================================
+   EMAIL MODAL -- TIDY-UP PATCH
+   Header pengirim/tanggal dirapiin (pill tanggal, bukan numpuk
+   vertikal), isi rata kiri, kotak info (dipakai email undangan
+   trial dkk) dijadiin card + Font Awesome icon lewat
+   email_modal_patch.js, tombol aksi dirapiin, dan tombol
+   "Tutup Pesan" dijadiin sekunder biar gak head-to-head sama
+   tombol aksi utama (Tolak/Izinkan dkk).
+
+   Rollback: hapus <link> ke file ini di index.html.
+   ========================================== */
+
+#modalBacaEmail .email-modal-box {
+    text-align: left;
+    padding: 20px;
+    max-width: 380px;
+}
+
+#modalBacaEmail .email-modal-header {
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+#modalBacaEmail .email-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+#modalBacaEmail .email-pengirim {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-1);
+    font-weight: 700;
+    font-family: var(--font-display);
+    letter-spacing: 0.3px;
+}
+#modalBacaEmail .email-pengirim i { color: var(--accent); font-size: 11px; }
+#modalBacaEmail .email-tanggal {
+    font-size: 9.5px;
+    color: var(--text-3);
+    font-family: var(--font-display);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--surface-4);
+    padding: 3px 8px;
+    border-radius: 99px;
+    flex-shrink: 0;
+}
+#modalBacaEmail .email-subjek {
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+#modalBacaEmail .email-isi {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--text-2);
+    text-align: left;
+}
+#modalBacaEmail .email-isi b { color: var(--text-1); }
+
+/* Kotak info (Tim pengundang / Pemain / Durasi trial, dkk) */
+.email-info-card-patch {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin: 4px 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+.email-info-row-patch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-2);
+}
+.email-info-icon-patch {
+    width: 16px;
+    text-align: center;
+    color: var(--accent);
+    font-size: 12px;
+    flex-shrink: 0;
+}
+.email-info-accent-patch { color: var(--accent); }
+
+/* Baris tombol aksi (Tolak/Izinkan Trial, dkk) di dalam isi email */
+#modalBacaEmail .email-isi .modal-btn {
+    padding: 11px 12px !important;
+    font-size: 11px !important;
+    border-radius: var(--radius) !important;
+    letter-spacing: 0.6px !important;
+}
+#modalBacaEmail .email-isi > div[style*="display:flex"] {
+    margin-bottom: 4px;
+    gap: 8px !important;
+}
+
+/* Tutup Pesan -- sekunder, biar gak numpuk visual sama tombol aksi */
+#modalBacaEmail .btn-tutup-email {
+    background: transparent !important;
+    color: var(--text-3) !important;
+    border: 1px solid var(--border-md) !important;
+    margin-top: 12px;
+    font-size: 11px;
+}
+
+/* === SELESAI: EMAIL MODAL === */
+
+/* ============================================================
+   === MULAI: HASIL MSC (WILD CARD / GROUP STAGE) ===
+   (asalnya: msc_hasil_modal_patch.css)
+   ============================================================ */
+/* ==========================================
+   HASIL MSC (WILD CARD / GROUP STAGE) -- TIDY-UP PATCH
+   Modal ini (#customModal) dipakai generik buat banyak notifikasi
+   lain di game -- perubahan CSS di sini cuma efektif kalau JS
+   patch pasangannya (msc_hasil_modal_patch.js) nandain kontennya
+   sebagai hasil pertandingan (lewat class .msc-hasil-wrap-patch /
+   .modal-title-patch). Notifikasi lain gak kesenggol sama sekali.
+
+   Rollback: hapus <link> ke file ini di index.html.
+   ========================================== */
+
+.modal-title-patch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-bottom: 16px;
+}
+.modal-title-patch i { font-size: 0.82em; }
+.modal-title-text-patch {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.msc-hasil-wrap-patch { text-align: left; }
+.msc-hasil-grup-label-patch {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent, #5B3DF5);
+    background: color-mix(in srgb, var(--accent, #5B3DF5) 10%, transparent);
+    padding: 4px 11px;
+    border-radius: 99px;
+    margin: 14px 0 8px;
+}
+.msc-hasil-wrap-patch .msc-hasil-grup-label-patch:first-child { margin-top: 0; }
+
+.msc-hasil-list-patch {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+.msc-hasil-row-patch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12.5px;
+}
+.msc-hasil-row-patch:last-child { border-bottom: none; }
+.msc-hasil-tim-patch {
+    flex: 1;
+    min-width: 0;
+    color: var(--text-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.msc-hasil-tim-kiri-patch  { text-align: right; }
+.msc-hasil-tim-kanan-patch { text-align: left; }
+.msc-hasil-tim-patch.menang { color: var(--green, #00B37E); font-weight: 700; }
+.msc-hasil-skor-patch {
+    flex: 0 0 46px;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--text-1);
+    background: var(--surface-3);
+    border-radius: 6px;
+    padding: 4px 0;
+}
+
+/* Modal box hasil MSC boleh lebih tinggi dari modal generik biasa,
+   soalnya bisa nampung 2 grup x 5 match sekaligus */
+#customModal:has(.msc-hasil-wrap-patch) .modal-box {
+    max-height: 82vh;
+    overflow-y: auto;
+}
+
+/* === SELESAI: HASIL MSC === */
+
+/* ============================================================
+   === MULAI: RIWAYAT JUARA (LEMARI TROFI) ===
+   (asalnya: riwayat_juara_shelf_patch.css)
+   ============================================================ */
+/* ==========================================
+   RIWAYAT JUARA -- LEMARI TROFI PATCH
+   Ganti list-ke-bawah jadi: tab season horizontal + kartu hero
+   buat turnamen Global (MSC/M-Series) + grid 2 kolom buat MPL
+   regional. Dirender ulang lewat riwayat_juara_shelf_patch.js
+   (wrap window.renderRiwayatJuara), style.css/ui.js asli gak
+   disentuh.
+
+   Rollback: hapus <link> ke file ini di index.html.
+   ========================================== */
+
+/* Season tabs */
+.rj-tab-row-patch {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 16px;
+    scrollbar-width: none;
+}
+.rj-tab-row-patch::-webkit-scrollbar { display: none; }
+.rj-tab-patch {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border-radius: 99px;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    font-family: var(--font-display);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-3);
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.rj-tab-patch.aktif {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+.rj-tab-patch .rj-tahun-patch { opacity: 0.65; font-weight: 500; margin-left: 3px; }
+
+.rj-section-title-patch {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: var(--font-display);
+    font-weight: 700;
+    margin: 4px 0 8px;
+}
+
+/* Hero card -- turnamen Global (MSC/M-Series) */
+.rj-hero-patch {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(120deg, #2A2140 0%, #4527D4 55%, var(--accent) 100%);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 26px rgba(69,39,212,0.28);
+}
+.rj-hero-patch::after {
+    content: '';
+    position: absolute; right: -30px; top: -30px;
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.14), transparent 70%);
+}
+.rj-hero-patch__badge {
+    width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #F5D061, var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    z-index: 1;
+}
+.rj-hero-patch__logo {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.6);
+    background: var(--surface-1);
+    object-fit: cover;
+    flex-shrink: 0; z-index: 1;
+}
+.rj-hero-patch__info { z-index: 1; min-width: 0; }
+.rj-hero-patch__label {
+    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(255,255,255,0.65); font-family: var(--font-display); font-weight: 700;
+    margin-bottom: 3px; display: flex; align-items: center; gap: 5px;
+}
+.rj-hero-patch__nama {
+    font-size: 16px; font-weight: 700; color: #fff; font-family: var(--font-display);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Grid -- turnamen regional (MPL per negara) */
+.rj-grid-patch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+.rj-grid-item-patch {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 10px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+.rj-grid-item-patch__badge {
+    width: 30px; height: 30px; margin: 0 auto 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #9AA3B2, #6B7385);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 12px;
+}
+.rj-grid-item-patch__badge--cyan { background: linear-gradient(135deg, #22D3EE, var(--cyan)); }
+.rj-grid-item-patch__logo {
+    width: 34px; height: 34px; margin: 0 auto 8px;
+    border-radius: 50%;
+    background: var(--surface-3);
+    border: 1px solid var(--border-md);
+    object-fit: cover;
+    display: block;
+}
+.rj-grid-item-patch__nama {
+    font-size: 12.5px; font-weight: 600; color: var(--text-1);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 3px;
+}
+.rj-grid-item-patch__label {
+    font-size: 9.5px; color: var(--text-3); font-family: var(--font-display);
+    letter-spacing: 0.5px; font-weight: 700;
+}
+.rj-globe-icon-patch { font-size: 0.85em; }
+
+/* === SELESAI: RIWAYAT JUARA === */
+
+/* ============================================================
+   === MULAI: GLOBAL POWER RANKING (JUDUL + TABEL) ===
+   (asalnya: gpr_header_patch.css)
+   ============================================================ */
+/* ==========================================
+   GLOBAL POWER RANKING -- HEADER FIX
+   Judul "GLOBAL POWER RANKING" kepotong/numpuk sama emoji 👑,
+   penyebabnya sama kayak kasus2 sebelumnya: emoji digabung teks
+   yang punya letter-spacing. Diganti icon Font Awesome, elemen
+   terpisah dari teks (lihat index.html: h2.gpr-title-patch).
+
+   Rollback: hapus <link> ke file ini di index.html, dan balikin
+   markup h2 di index.html ke "👑 GLOBAL POWER RANKING" polos.
+   ========================================== */
+
+.gpr-title-patch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.gpr-title-icon-patch {
+    font-size: 0.85em;
+}
+
+/* ==========================================
+   GPR TABEL -- MUAT SE-LEBAR LAYAR (GAK SCROLL)
+   7 kolom dipadetin: header disingkat (LIGA/MSC/M-SRS/MOVE), font
+   & padding dikecilin, table-layout:fixed dengan lebar proporsional
+   per kolom, nama tim yang kepanjangan di-ellipsis biar gak bikin
+   kolom lain kegencet.
+   ========================================== */
+.gpr-tabel-wrap-patch {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius);
+}
+.gpr-tabel-compact-patch {
+    table-layout: fixed;
+    width: 100%;
+}
+.gpr-tabel-compact-patch th {
+    font-size: 8px;
+    padding: 5px 2px;
+    letter-spacing: 0;
+    line-height: 1.2;
+}
+.gpr-tabel-compact-patch td {
+    font-size: 10px;
+    padding: 7px 2px;
+}
+.gpr-tabel-compact-patch td:nth-child(2) {
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.gpr-tabel-compact-patch .gpr-move {
+    font-size: 9.5px;
+    white-space: nowrap;
+}
+
+/* === SELESAI: GLOBAL POWER RANKING === */
+
+/* ============================================================
+   === MULAI: BERITA MUSIM INI (GAYA A -- TIMELINE ICON) ===
+   (dipasangkan sama section JS bernama sama di ui_patches.js)
+   ============================================================ */
+.berita-item-patch {
+    display: flex;
+    gap: 12px;
+    padding: 12px 4px;
+    border-bottom: 1px dashed var(--border-md, var(--border));
+}
+.berita-item-patch:last-child { border-bottom: none; }
+.berita-badge-patch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    margin-top: 2px;
+}
+.berita-body-patch { flex: 1; min-width: 0; }
+.berita-tanggal-patch {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9px;
+    color: var(--text-3, var(--text-muted));
+    font-family: var(--font-display);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.berita-teks-patch {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-2);
+}
+.berita-teks-patch b,
+.berita-teks-patch span { color: var(--text-1); font-weight: 600; }
+
+/* Warna semantik badge per tipe berita */
+.berita-item-patch.tipe-alert   .berita-badge-patch { background: linear-gradient(135deg,#F0716F,var(--red, #E5484D)); }
+.berita-item-patch.tipe-lock    .berita-badge-patch { background: linear-gradient(135deg,#9AA3B2,#6B7385); }
+.berita-item-patch.tipe-waktu   .berita-badge-patch { background: linear-gradient(135deg,#F0B94A,var(--gold, #C9971F)); }
+.berita-item-patch.tipe-deal    .berita-badge-patch { background: linear-gradient(135deg,#3DDC97,var(--green, #00B37E)); }
+.berita-item-patch.tipe-accent  .berita-badge-patch { background: linear-gradient(135deg,#8B6DF7,var(--accent, #5B3DF5)); }
+.berita-item-patch.tipe-info    .berita-badge-patch { background: linear-gradient(135deg,#5AB8F0,var(--blue, #2563EB)); }
+
+/* === SELESAI: BERITA MUSIM INI === */
+
+/* ============================================================
+   === MULAI: BERITA TICKER DASHBOARD (KABAR TERKINI) ===
+   (dipasangkan sama section JS bernama sama di ui_patches.js)
+   ============================================================ */
+.berita-ticker-icon-patch {
+    margin-right: 6px;
+    color: var(--accent);
+}
+/* === SELESAI: BERITA TICKER DASHBOARD === */
+
+/* ============================================================
+   === MULAI: BURSA TRANSFER (TOMBOL, SEARCH ICON, NOTIF LOCK) ===
+   (tombol Trial/Open Rec. diedit di index.html; sisanya dipasangkan
+   sama section JS bernama sama di ui_patches.js)
+   ============================================================ */
+.tombol-icon-patch { margin-right: 2px; }
+
+.bursa-search-wrap-patch { position: relative; }
+.bursa-search-wrap-patch .bursa-filter-search { padding-left: 34px; }
+.bursa-search-icon-patch {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-3);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.notif-transfer-icon-patch { margin-right: 4px; }
+/* === SELESAI: BURSA TRANSFER === */
+
+/* ============================================================
+   === MULAI: TITLE ICON PATCH (GENERIK) ===
+   Class dipisah dari fitur tertentu -- kepake berkali-kali di
+   banyak tempat (judul header/modal yang tadinya emoji nempel di
+   teks ber-letter-spacing). Tinggal pasang di elemen manapun:
+   class="title-icon-patch" + <i class="fa-solid ..."></i><span>Teks</span>
+   ============================================================ */
+.title-icon-patch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.title-icon-patch i { font-size: 0.85em; }
+/* === SELESAI: TITLE ICON PATCH (GENERIK) === */
+
+/* ============================================================
+   === MULAI: TRIAL PLAYER (TREN ICON) ===
+   (dipasangkan sama section JS bernama sama di ui_patches.js)
+   ============================================================ */
+.tren-icon-patch { margin-right: 2px; }
+/* === SELESAI: TRIAL PLAYER (TREN ICON) === */
+
+/* ============================================================
+   === MULAI: PILIH KLUB (TAB LIGA) ===
+   (dipasangkan sama section JS bernama sama di ui_patches.js)
+   ============================================================ */
+.liga-tab-row-patch {
+    display: flex;
+    gap: 6px;
+    padding: 4px 18px 10px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.liga-tab-row-patch::-webkit-scrollbar { display: none; }
+.liga-tab-patch {
+    flex: 1;
+    min-width: 108px;
+    text-align: center;
+    padding: 9px 10px;
+    border-radius: var(--radius);
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    font-family: var(--font-display);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--text-3);
+    cursor: pointer;
+}
+.liga-tab-patch.aktif {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+.liga-desc-patch {
+    margin: 0 18px 12px;
+    padding: 10px 12px;
+    background: var(--accent-dim, rgba(91,61,245,0.1));
+    border-radius: var(--radius);
+    font-size: 11.5px;
+    color: var(--text-2);
+    line-height: 1.5;
+    flex-shrink: 0;
+}
+/* === SELESAI: PILIH KLUB (TAB LIGA) === */

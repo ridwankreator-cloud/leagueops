@@ -1,0 +1,2014 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#EDF0F5" />
+        <title>MLBB — Pro Circuit Manager</title>
+
+        <!-- Fonts: preconnect for speed -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet" />
+
+        <!-- Icons: Font Awesome (dipakai di menu Liga Dunia) -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+        <!-- Stylesheet -->
+        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="ui_patches.css" />
+    </head>
+    <body>
+        <!-- ========================================== -->
+        <!-- LAYAR 1: MAIN MENU UTAMA (IMPROVED UI)     -->
+        <!-- ========================================== -->
+        <div id="layarMainMenu">
+            <!-- Top HUD bar -->
+            <div class="main-menu__topbar">
+                <span>MLBB Pro Circuit</span>
+                <span>Season 2026</span>
+            </div>
+
+            <!-- Judul Game -->
+            <div class="main-menu__title-wrap">
+                <div class="main-menu__eyebrow">Mobile Legends Bang Bang</div>
+                <h1 class="main-menu__title">EM-EL <span>PRO CIRCUIT</span></h1>
+                <p class="main-menu__subtitle">Manager 2026</p>
+            </div>
+
+            <!-- Tombol Menu -->
+            <div class="main-menu__buttons">
+                <button class="btn-menu-primary" onclick="bukaPilihTim()">Mulai Karir Baru</button>
+                <button class="btn-menu-secondary" onclick="loadGame()">Lanjutkan Permainan</button>
+                <button class="btn-menu-secondary" onclick="bukaDatabase()">Database &amp; Save</button>
+                <button class="btn-menu-tertiary" onclick="bukaTentangGame()">Tentang Game</button>
+            </div>
+
+            <div class="main-menu__footer">
+                Developed by Muhammad Fauzi Ridwan &nbsp;·&nbsp; v2.0
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- LAYAR 2: MODAL PILIH TIM (GLOBAL & GLASS)  -->
+        <!-- ========================================== -->
+        <div id="modalPilihTim" class="modal-overlay sembunyi">
+            <div class="pilih-tim-sheet">
+                <!-- Header -->
+                <div class="pilih-tim-header">
+                    <div class="pilih-tim-title">Pilih Klub</div>
+                    <button class="pilih-tim-close" onclick="tutupPilihTim()">✕</button>
+                </div>
+
+                <!-- Input Nama CEO -->
+                <div class="pilih-tim-input-wrap">
+                    <label class="pilih-tim-label">Nama Manajer</label>
+                    <input type="text" id="inputNamaCEO" placeholder="Masukkan nama kamu..." class="pilih-tim-input" />
+                </div>
+
+                <!-- Tab liga (gantiin alur 2 langkah pilih-liga -> pilih-tim) -->
+                <div id="ligaTabRowPatch" class="liga-tab-row-patch"></div>
+                <div id="ligaDescPatch" class="liga-desc-patch"></div>
+
+                <!-- Daftar klub buat liga yang lagi aktif tab-nya -->
+                <div id="listTimPilihan" class="pilih-tim-list"></div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- FASE 8: MODAL HUTANG BANK                  -->
+        <!-- ========================================== -->
+        <div id="modalHutangBank" class="modal-overlay sembunyi" style="z-index: 10005">
+            <div class="modal-box hb-modal-box">
+                <div class="modal-title" style="color:#00B37E;">🏦 PINJAMAN BANK</div>
+                <div id="hutangBankKonten"></div>
+
+                <div id="hutangBankFormWrap" class="sembunyi">
+                    <div class="hb-field-label">Nominal Pinjaman</div>
+                    <input type="number" id="inputNominalPinjaman" class="hb-input" placeholder="Masukkan nominal..." oninput="updatePreviewPinjaman()" />
+
+                    <div class="hb-field-label">Pilih Tenor</div>
+                    <div class="hb-tenor-row">
+                        <button class="hb-tenor-btn" data-tenor="6" onclick="pilihTenorPinjaman(6)">6 Bulan<br><span>8%/musim</span></button>
+                        <button class="hb-tenor-btn" data-tenor="12" onclick="pilihTenorPinjaman(12)">12 Bulan<br><span>12%/musim</span></button>
+                        <button class="hb-tenor-btn" data-tenor="24" onclick="pilihTenorPinjaman(24)">24 Bulan<br><span>18%/musim</span></button>
+                    </div>
+
+                    <div id="hutangBankPreview" class="hb-preview-box"></div>
+
+                    <div class="modal-btn-row" style="margin-top:14px;">
+                        <button class="modal-btn btn-modal-cancel" onclick="tutupModalHutangBank()">BATAL</button>
+                        <button class="modal-btn btn-green" onclick="konfirmasiAjukanPinjaman()">AJUKAN PINJAMAN</button>
+                    </div>
+                </div>
+
+                <button class="modal-btn btn-modal-cancel btn-block" style="margin-top:14px;" onclick="tutupModalHutangBank()" id="hutangBankBtnTutupSaja">TUTUP</button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- LAYAR 3: MODAL DATABASE & SAVE MANAGER     -->
+        <!-- ========================================== -->
+        <div id="modalDatabase" class="modal-database sembunyi">
+            <div class="modal-database__box">
+                <h2 class="modal-database__title">DATABASE &amp; SAVE MANAGER</h2>
+                <p class="modal-database__desc">Backup karir lu atau pasang Custom Database dari Modder komunitas.</p>
+                <input type="file" id="importFile" accept=".json" style="display:none" />
+                <div class="modal-database__actions">
+                    <button class="modal-btn btn-green btn-block" onclick="exportGame()">Export / Download Save</button>
+                    <button class="modal-btn btn-blue btn-block" onclick="triggerImport()">Import / Upload Save</button>
+                    <!-- [NEW v1.8] Jalur cadangan buat WebView yang gak dukung
+                         upload file dengan bener -- lengkapin loop sama tombol
+                         Export lapis-3 (manual copy-paste). -->
+                    <button class="modal-btn btn-block" style="background: var(--surface-3); color: var(--text-1); border: 1px solid var(--border);" onclick="window.tampilkanModalImportManual()">Import via Paste Teks</button>
+                </div>
+                <button class="modal-btn btn-red btn-block" style="margin-top:16px" onclick="tutupDatabase()">Kembali</button>
+            </div>
+        </div>
+
+        <div id="layarDashboard">
+            <!-- SEMUA KONTEN JADI 1 HALAMAN SCROLLABLE -->
+            <div class="dash-scroll-body">
+
+                <!-- HUD BAR -->
+                <div class="dash-hud-block">
+                    <div class="dash-hud-row-top">
+                        <div class="dash-kas-chip"><span id="dashKas">Rp 0</span></div>
+                        <div class="dash-power-chip">PWR <span id="dashPower">0</span></div>
+                        <div class="dash-tgl-chip"><span id="dashTgl">Pra-Musim</span></div>
+                    </div>
+                    <div class="dash-hud-row-bot">
+                        <span id="dashMetaAktif">Meta musim belum aktif</span>
+                    </div>
+
+                </div>
+
+
+
+                <!-- JADWAL -->
+                <div class="next-match-container">
+                    <div class="next-match-header">
+                        <div class="next-match-header__icon"><i class="fa-solid fa-calendar-days"></i></div>
+                        <span class="next-match-header__label">Status Musim</span>
+                        <span class="next-match-subtitle" id="statusMusimFaseLabel"></span>
+                    </div>
+                    <div id="widgetJadwalData"></div>
+                </div>
+
+
+
+                <!-- NEWS -->
+                <div class="news-container" onclick="bukaBeritaLengkap()">
+                    <div class="news-header">
+                        <span>KABAR TERKINI
+                            <span class="text-muted" style="font-size:11px;font-weight:normal">(KLIK LIHAT SEMUA)</span>
+                        </span>
+
+                    </div>
+                    <div id="boxBerita" class="news-single-line"></div>
+                </div>
+
+                <!-- KLASEMEN MINI -->
+                <div class="klasemen-mini-container">
+                    <div class="klasemen-mini-header">KLASEMEN</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 5%"></th>
+                                <th style="text-align: left; width: 35%">TEAM</th>
+                                <th style="color: var(--red)">MATCH<br />POINT</th>
+                                <th>MATCH<br />W-L</th>
+                                <th style="color: var(--red)">NET<br />GAME WIN</th>
+                                <th>GAME<br />W-L</th>
+                            </tr>
+                        </thead>
+                        <tbody id="badanKlasemen"></tbody>
+                    </table>
+                    <button id="btnLihatKlasemenLengkap" class="btn-klasemen-lengkap" onclick="window._asalKlasemen='dashboard'; bukaSubLayar('layarKlasemenMPLID')">LIHAT KLASEMEN LENGKAP →</button>
+                </div>
+
+                <!-- TOMBOL UTAMA -->
+                <div class="dash-actions">
+                    <button id="btnMainkan" class="btn-hero" onclick="klikTombolUtama()">Hari Berikutnya</button>
+                    <button class="btn-save-sm" onclick="keluarDanSave()">SAVE</button>
+                </div>
+
+            </div><!-- end dash-scroll-body -->
+        </div>
+
+        <div
+            id="layarRoster"
+            class="sub-layar sembunyi" style="padding-bottom: 55px"
+        >
+            <div class="header-sub">
+<h2 id="judulManajemen" class="text-gold">ROSTER TIM</h2>
+                <button class="btn-kembali" onclick="tutupSubLayar()">
+                    Ke Menu Utama
+                </button>
+            </div>
+
+            <div id="tabTim">
+                <div class="roster-tabbar">
+                    <div class="roster-tab aktif" data-tab="statistik" onclick="window.gantiTabRoster('statistik')">
+                        <i class="fa-solid fa-chart-simple"></i><span>Statistik</span>
+                    </div>
+                    <div class="roster-tab" data-tab="fanbase" onclick="window.gantiTabRoster('fanbase')">
+                        <i class="fa-solid fa-users"></i><span>Fanbase</span>
+                    </div>
+                    <div class="roster-tab" data-tab="mental" onclick="window.gantiTabRoster('mental')">
+                        <i class="fa-solid fa-brain"></i><span>Mental</span>
+                    </div>
+                    <div class="roster-tab" data-tab="roster" onclick="window.gantiTabRoster('roster')">
+                        <i class="fa-solid fa-list-ul"></i><span>Roster</span>
+                    </div>
+                </div>
+
+                <!-- TAB: STATISTIK & KEKUATAN TIM -->
+                <div class="roster-panel aktif" id="rosterPanel-statistik">
+                <div class="card">
+                    <div class="card__header">
+                        <div class="card__header-icon"><i class="fa-solid fa-chart-simple"></i></div>
+                        <div class="card__header-title">Statistik &amp; Kekuatan Tim</div>
+                    </div>
+                    <div class="card__body">
+                        <div class="metric">
+                            <div class="metric__label"><span>Power Roster (OVR)</span><span id="txtPowerRoster" class="metric__value" style="color:var(--text-1)">0</span></div>
+                            <div class="metric__track"><div id="barPowerRoster" class="metric__fill" style="background:var(--green);"></div></div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric__label"><span>Total Buff Kepelatihan</span><span id="txtBuffStaff" class="metric__value" style="color:var(--cyan)">+0</span></div>
+                            <div class="metric__track"><div id="barBuffStaff" class="metric__fill" style="background:var(--cyan);"></div></div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric__label"><span>Team Chemistry</span><span id="txtChemistry" class="metric__value" style="color:var(--orange)">0%</span></div>
+                            <div class="metric__track"><div id="barChemistry" class="metric__fill" style="background:var(--orange);"></div></div>
+                            <div id="descChemistry" class="metric__desc">Mencari ritme bermain...</div>
+                        </div>
+
+                        <div class="hero-stat">
+                            <div>
+                                <div class="hero-stat__label">Total Power Keseluruhan</div>
+                                <div class="hero-stat__sub">Gabungan OVR, buff staff &amp; chemistry</div>
+                            </div>
+                            <div id="txtTotalPower" class="hero-stat__value">0</div>
+                        </div>
+
+                        <div class="metric">
+                            <div class="metric__label"><span>Reputasi Tim</span><span id="txtReputasi" class="metric__value" style="color:var(--orange)">0 Poin</span></div>
+                            <div class="metric__track"><div id="barReputasi" class="metric__fill" style="background:var(--orange);"></div></div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- TAB: FANBASE & DUKUNGAN -->
+                <div class="roster-panel" id="rosterPanel-fanbase">
+                <div class="card">
+                    <div class="card__header">
+                        <div class="card__header-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-users"></i></div>
+                        <div class="card__header-title">Fanbase &amp; Dukungan</div>
+                    </div>
+                    <div class="card__body">
+                        <div class="kpi-row">
+                            <div class="kpi">
+                                <div class="kpi__label">Jumlah Penggemar</div>
+                                <div id="txtFanbaseJumlah" class="kpi__value">0rb</div>
+                            </div>
+                            <div class="kpi">
+                                <div class="kpi__label">Moral Fanbase</div>
+                                <div id="txtMoralFans" class="kpi__value green">0%</div>
+                                <div class="kpi__track"><div id="barMoralFans" class="kpi__fill" style="width:0%;background:var(--green);"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Status Kritik Fans -->
+                        <div class="status-pill" id="boxStatusFans">
+                            <span class="status-pill__label">Status Fans</span>
+                            <span class="status-pill__value"><span id="dotStatusFans" class="status-dot"></span><span id="txtStatusFans">Mendukung Penuh</span></span>
+                        </div>
+
+                        <!-- Info Merchandise (klik ke layar fanbase) -->
+                        <div class="merch-link" onclick="window.bukaLayarFanbase()">
+                            <div>
+                                <div class="merch-col-label">Merchandise</div>
+                                <div id="txtMerchandiseAktif" class="merch-col-value" style="color:var(--gold);">0 item aktif</div>
+                            </div>
+                            <div>
+                                <div class="merch-col-label">Pendapatan Total</div>
+                                <div id="txtRevenueMerchandise" class="merch-col-value" style="color:var(--green);">Rp 0</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- TAB: MENTAL & STAMINA PEMAIN -->
+                <div class="roster-panel" id="rosterPanel-mental">
+                <div class="card">
+                    <div class="card__header">
+                        <div class="card__header-icon" style="background:var(--red-dim);color:var(--red);"><i class="fa-solid fa-brain"></i></div>
+                        <div class="card__header-title">Mental &amp; Stamina Pemain</div>
+                    </div>
+                    <div class="card__body">
+                        <p class="text-dim" style="font-size:11px; margin-bottom:10px; line-height:1.5;">
+                            Mental &amp; stamina mempengaruhi performa di pertandingan. Jaga kondisi pemain!
+                        </p>
+                        <div id="sectionMentalStamina">
+                            <div class="empty-state" style="padding:10px;">Belum ada data pemain.</div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- TAB: ROSTER (STAFF + PEMAIN) -->
+                <div class="roster-panel" id="rosterPanel-roster">
+                <div id="widgetStaffKita" class="staff-widget"></div>
+
+                <div id="listRoster" class="roster-overflow"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ========================================== -->
+        <!-- REDESIGN: KEUANGAN & SPONSOR (dipindah dari tab Roster, sekarang via hub Organisasi) -->
+        <!-- ========================================== -->
+        <div id="layarKeuanganSponsor" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold"><i class="fa-solid fa-sack-dollar"></i> KEUANGAN &amp; SPONSOR</h2>
+                <button class="btn-kembali" onclick="tutupSubLayar()">Kembali</button>
+            </div>
+            <div class="kas-header">
+                <div class="kas-header__label">TOTAL SALDO TIM:</div>
+                <div id="teksTotalKas" class="kas-header__amount">Rp 0</div>
+            </div>
+
+            <div id="teksSponsorAktif" class="sembunyi"></div>
+            <div id="listSponsor" style="margin-top:10px;"></div>
+
+            <h3 class="section-title" style="margin-top:25px">RIWAYAT TRANSAKSI</h3>
+            <div id="listRiwayatKeuangan" class="riwayat-kas"></div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- REDESIGN: JADWAL & HASIL (dipindah dari tab Roster, sekarang via hub Lainnya) -->
+        <!-- ========================================== -->
+        <div id="layarJadwalHasil" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold">📅 JADWAL &amp; HASIL</h2>
+                <button class="btn-kembali" onclick="tutupSubLayar()">Kembali</button>
+            </div>
+            <div id="logMatchContainer" class="log-container"></div>
+        </div>
+
+        <div id="layarTransfer" class="sub-layar sembunyi">
+            <div class="header-sub header-sub--multi-action">
+                <h2 class="text-gold">BURSA TRANSFER & REKRUTMEN</h2>
+                <div class="header-sub__actions">
+                    <button class="btn-kembali btn-kembali--trial" onclick="bukaSubLayar('layarTrialPlayer')">
+                        <i class="fa-solid fa-magnifying-glass tombol-icon-patch"></i> Trial
+                    </button>
+                    <button class="btn-kembali btn-kembali--rec" onclick="window.bukaModalOpenRecruitment()">
+                        <i class="fa-solid fa-bullhorn tombol-icon-patch"></i> Open Rec.
+                    </button>
+                    <button class="btn-kembali" onclick="tutupSubLayar()">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+<div id="notifTransfer" class="sembunyi text-merah notif-transfer">⚠️ Bursa Transfer ditutup!</div>
+            <div id="listTransfer" class="card-container list-transfer-wrap"></div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- FASE 17: LAYAR TRIAL PLAYER                -->
+        <!-- ========================================== -->
+        <div id="layarTrialPlayer" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold title-icon-patch"><i class="fa-solid fa-magnifying-glass"></i><span>TRIAL PLAYER</span></h2>
+                <button class="btn-kembali" onclick="bukaSubLayar('layarTransfer')">Kembali</button>
+            </div>
+            <div class="trial-info-bar">
+                Slot Trial: <span id="trialSlotTerpakai">0</span>/<span id="trialSlotMax">5</span>
+                <button class="trial-btn-jalankan title-icon-patch" onclick="window.eksekusiJalankanScrimTrial()"><i class="fa-solid fa-bolt"></i><span>Jalankan Scrim (Skip Waktu)</span></button>
+            </div>
+            <div id="trialDaftarKandidat" class="card-container trial-list"></div>
+        </div>
+
+        <div id="layarRiwayat" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold">RIWAYAT JUARA
+                </h2>
+                <button class="btn-kembali" onclick="tutupSubLayar()">
+                    Tutup
+                </button>
+            </div>
+<div id="kontenRiwayat" class="konten-riwayat"></div>
+        </div>
+
+        <div id="layarDuniaEsports" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold">TURNAMEN ESPORTS DUNIA
+                </h2>
+                <button class="btn-kembali" onclick="tutupSubLayar()">
+                    Tutup
+                </button>
+            </div>
+<p class="dunia-desc">Ekosistem resmi turnamen Mobile Legends: Bang Bang Global.</p>
+
+<div class="dunia-card">
+                <div class="dunia-card__header"><i class="fa-solid fa-trophy"></i> Global Tournaments (Tier S)</div>
+
+                <div class="tree-item tier-s" onclick="bukaSubLayar('layarMSeries')">
+                    <span class="tree-item__icon"><i class="fa-solid fa-trophy"></i></span>
+                    <span class="tree-item__title tree-item-name--gold" id="navLabelMSeries">M7 World Championship</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+
+                <div class="tree-item tier-s accent-cyan" onclick="bukaSubLayar('layarMSC')">
+                    <span class="tree-item__icon"><i class="fa-solid fa-earth-asia"></i></span>
+                    <span class="tree-item__title tree-item-name--cyan">Mid Season Cup (MSC) x EWC</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+
+                <div class="tree-item tier-s" onclick="bukaSubLayar('layarGlobalPowerRanking')">
+                    <span class="tree-item__icon"><i class="fa-solid fa-crown"></i></span>
+                    <span class="tree-item__title tree-item-name--gold">Global Power Ranking</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+
+                <div class="tree-item tier-s tier-disabled">
+                    <span class="tree-item__icon"><i class="fa-solid fa-gamepad"></i></span>
+                    <span class="tree-item__title">ESL Snapdragon Pro Series</span>
+                    <span class="badge-cek" style="background:var(--surface-4);color:var(--text-3);">SOON</span>
+                </div>
+
+                <div class="tree-item tier-a accent-green" onclick="bukaSubLayar('layarAkuisisiMerger')">
+                    <span class="tree-item__icon"><i class="fa-solid fa-landmark"></i></span>
+                    <span class="tree-item__title" style="color:var(--green);">Akuisisi &amp; Merger MPL</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+
+                <div class="tree-item tier-a accent-blue" onclick="bukaSubLayar('layarKlaimAfiliasi')">
+                    <span class="tree-item__icon"><i class="fa-solid fa-handshake"></i></span>
+                    <span class="tree-item__title" style="color:var(--blue);">Bentuk Afiliasi Baru</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+            </div>
+
+            <div class="dunia-card">
+                <div class="dunia-card__header"><i class="fa-solid fa-sitemap"></i> Regional Leagues</div>
+
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenMPLID')">
+                    <span class="tree-item__icon flag">🇮🇩</span>
+                    <span class="tree-item__title">MPL Indonesia</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-b" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenMDLID')">
+                    <span class="tree-item__icon"><i class="fa-solid fa-medal"></i></span>
+                    <span class="tree-item__title">MDL Indonesia (Development League)</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-c" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenLEN')">
+                    <span class="tree-item__icon"><i class="fa-solid fa-medal"></i></span>
+                    <span class="tree-item__title">Liga Esports Nasional (Liga 1)</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenMPLPH')">
+                    <span class="tree-item__icon flag">🇵🇭</span>
+                    <span class="tree-item__title">MPL Philippines</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-b" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenMDLPH')">
+                    <span class="tree-item__icon"><i class="fa-solid fa-medal"></i></span>
+                    <span class="tree-item__title">MDL Philippines</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenMPLMY')">
+                    <span class="tree-item__icon flag">🇲🇾</span>
+                    <span class="tree-item__title">MPL Malaysia</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-b" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenMALMY')">
+                    <span class="tree-item__icon"><i class="fa-solid fa-medal"></i></span>
+                    <span class="tree-item__title">MAL Malaysia</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenMPLSG')">
+                    <span class="tree-item__icon flag">🇸🇬</span>
+                    <span class="tree-item__title">MPL Singapore</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenKH')">
+                    <span class="tree-item__icon flag">🇰🇭</span>
+                    <span class="tree-item__title">Cambodia</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenMM')">
+                    <span class="tree-item__icon flag">🇲🇲</span>
+                    <span class="tree-item__title">Myanmar</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenMENA')">
+                    <span class="tree-item__icon">🌍</span>
+                    <span class="tree-item__title">MENA (Timur Tengah &amp; Afrika)</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenTR')">
+                    <span class="tree-item__icon flag">🇹🇷</span>
+                    <span class="tree-item__title">MLBB Turkiye Championship</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenEECA')">
+                    <span class="tree-item__icon">🌍</span>
+                    <span class="tree-item__title">EECA (Eropa Timur &amp; Asia Tengah)</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenEA')">
+                    <span class="tree-item__icon">🌏</span>
+                    <span class="tree-item__title">MCT East Asia</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenAM')">
+                    <span class="tree-item__icon">🌎</span>
+                    <span class="tree-item__title">MCT Americas</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenIN')">
+                    <span class="tree-item__icon flag">🇮🇳</span>
+                    <span class="tree-item__title">MLBB India</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+                <div class="tree-item tier-a" onclick="window._asalKlasemen='layarDuniaEsports'; bukaSubLayar('layarKlasemenWEU')">
+                    <span class="tree-item__icon">🌍</span>
+                    <span class="tree-item__title">Western Europe</span>
+                    <span class="tree-item__chevron">›</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="layarMSC" class="sub-layar sembunyi">
+            <div class="header-sub header-sub--cyan">
+                <h2 class="text-cyan">🌍 MID SEASON CUP (MSC)</h2>
+                <button
+                    class="btn-kembali"
+                    onclick="navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+<p class="dunia-desc">Turnamen Internasional mempertemukan 8 Tim Terbaik Asia Tenggara.</p>
+            <div id="logMSCContainer" class="log-container">
+                <div class="empty-state">MSC belum dimulai. Tuntaskan Regional Season dulu!</div>
+            </div>
+        </div>
+
+        <div id="layarMSeries" class="sub-layar sembunyi">
+            <div class="header-sub header-sub--gold">
+                <h2 class="text-gold" id="headerLabelMSeries">🏆 M7 WORLD CHAMPIONSHIP</h2>
+                <button
+                    class="btn-kembali"
+                    onclick="navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+<p class="dunia-desc">Turnamen Puncak Global MLBB. Mempertemukan tim terkuat dari seluruh dunia.</p>
+            <div id="logMSeriesContainer" class="log-container">
+                <div class="empty-state">M7 World Championship belum dimulai. Turnamen ini diadakan pada akhir tahun (Season Genap).</div>
+            </div>
+        </div>
+
+        <div id="modalProfil" class="modal-overlay sembunyi">
+            <div class="modal-box profil-modal-box">
+                <div class="profil-modal-header">
+                    <button onclick="tutupProfil()" class="profil-btn-close">✖</button>
+                    <button onclick="bukaEditor('pemain')" class="profil-btn-edit">✏️</button>
+                    <div id="profilNama" class="profil-nama">NAMA PEMAIN</div>
+                    <div class="profil-meta-row">
+                        <span id="profilRole" class="profil-role">ROLE</span>
+                        <span class="profil-meta-dot">•</span>
+                        <span id="profilNegara" class="profil-negara">🇮🇩 Indonesia</span>
+                    </div>
+                    <div id="profilMoral" class="profil-moral"></div>
+                    <div id="profilSifat" style="margin-top: 8px"></div>
+                </div>
+                <div class="profil-body">
+                    <div class="profil-stats-row">
+                        <div class="profil-stat-cell">
+                            <div class="profil-stat-cell-label">UMUR</div>
+                            <div id="profilUmur" class="profil-stat-cell-val">0</div>
+                        </div>
+                        <div class="profil-stat-cell profil-stat-cell--mid">
+                            <div class="profil-stat-cell-label">POTENSI</div>
+                            <div id="profilPotensi" class="profil-stat-cell-val profil-stat-cell-val--gold">0</div>
+                        </div>
+                        <div class="profil-stat-cell">
+                            <div class="profil-stat-cell-label">OVR</div>
+                            <div id="profilOvr" class="profil-stat-cell-val profil-stat-cell-val--green">0</div>
+                        </div>
+                    </div>
+
+                    <!-- [UPDATE] Section di bawah ini sekarang dipecah jadi 3 tab
+                         (Ringkasan/Atribut/Karir) biar gak numpuk satu kartu panjang.
+                         Umur/Potensi/OVR di atas tetap di luar tab karena relevan
+                         di semua konteks. -->
+                    <div class="profil-tabbar" id="profilTabbar">
+                        <button type="button" class="profil-tab--active" data-profiltab="ringkasan" onclick="gantiTabProfil('ringkasan')">Ringkasan</button>
+                        <button type="button" data-profiltab="atribut" onclick="gantiTabProfil('atribut')">Atribut</button>
+                        <button type="button" data-profiltab="karir" onclick="gantiTabProfil('karir')">Karir</button>
+                    </div>
+
+                    <div id="profilTabRingkasan" class="profil-tabpanel profil-tab--active">
+                        <div id="boxTrendPerforma" class="profil-card">
+                            <div class="profil-card-header">
+                                <div class="profil-card-label">GRAFIK OVR</div>
+                                <div id="profilTrendStatus" class="profil-trend-status">➖ Menunggu</div>
+                            </div>
+                            <canvas id="canvasTrendPerforma" width="280" height="110" class="profil-canvas"></canvas>
+                        </div>
+                    </div>
+
+                    <div id="profilTabAtribut" class="profil-tabpanel">
+                        <div class="profil-info-box">
+                            <div class="profil-info-box__label">ATRIBUT STATISTIK</div>
+                            <div class="profil-attr-grid">
+                                <div class="profil-attr-row">
+                                    <span class="profil-attr-row__name">Mekanik</span>
+                                    <div class="profil-attr-row__track"><div id="barProfilMekanik" class="profil-attr-row__fill" style="width:0%"></div></div>
+                                    <span id="profilMekanik" class="profil-attr-row__val">0</span>
+                                </div>
+                                <div class="profil-attr-row">
+                                    <span class="profil-attr-row__name">Makro</span>
+                                    <div class="profil-attr-row__track"><div id="barProfilMakro" class="profil-attr-row__fill" style="width:0%"></div></div>
+                                    <span id="profilMakro" class="profil-attr-row__val">0</span>
+                                </div>
+                                <div class="profil-attr-row">
+                                    <span class="profil-attr-row__name">Mental</span>
+                                    <div class="profil-attr-row__track"><div id="barProfilMental" class="profil-attr-row__fill" style="width:0%"></div></div>
+                                    <span id="profilMental" class="profil-attr-row__val">0</span>
+                                </div>
+                                <div class="profil-attr-row">
+                                    <span class="profil-attr-row__name">Spesialis</span>
+                                    <div class="profil-attr-row__track"><div id="barProfilSpesialis" class="profil-attr-row__fill" style="width:0%"></div></div>
+                                    <span id="profilSpesialis" class="profil-attr-row__val">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="profilTabKarir" class="profil-tabpanel">
+                        <div class="profil-info-box">
+                            <div class="profil-info-box__label">RIWAYAT KARIR</div>
+                            <div id="profilKarir" class="profil-karir-list"></div>
+                        </div>
+
+                        <div class="profil-info-box">
+                            <div class="profil-info-box__label">DAFTAR TROFI</div>
+                            <div id="profilTrofi" class="profil-karir-list"></div>
+                        </div>
+                    </div>
+
+                    <div class="profil-info-box">
+                        <div class="profil-info-box__row">
+                            Nilai Transfer: <span id="profilNilaiTransfer" class="profil-info-box__gold">Rp 0</span>
+                        </div>
+                        <div class="profil-info-box__row">
+                            Gaji: <span id="profilGaji" class="profil-info-box__gold">Rp 0</span> / Musim
+                        </div>
+                        <div class="profil-info-box__row">
+                            Sisa Kontrak: <span id="profilKontrak" class="profil-info-box__white">0</span>
+                        </div>
+                    </div>
+                    <button id="btnProfilJadikanInti" class="modal-btn sembunyi profil-btn-inti"></button>
+                    <div class="profil-btn-row">
+                        <button id="btnProfilNego" class="modal-btn profil-btn-nego">PERPANJANG</button>
+                        <button id="btnProfilJual" class="modal-btn profil-btn-jual">TRANSFER</button>
+                        <button id="btnProfilPinjam" class="modal-btn profil-btn-pinjam">PINJAM</button>
+                    </div>
+                    <button id="btnProfilTebusOpsi" class="modal-btn sembunyi" style="background:#7C3AED; color:#fff; margin-top:8px;">TEBUS OPSI BELI</button>
+                </div>
+            </div>
+        </div>
+        <div id="modalProfilStaff" class="modal-overlay sembunyi">
+            <div class="modal-box profil-modal-box">
+                <div class="profil-modal-header">
+                    <button onclick="tutupProfilStaff()" class="profil-btn-close">✖</button>
+                    <button onclick="bukaEditor('staff')" class="profil-btn-edit">✏️</button>
+                    <div id="profilStaffNama" class="profil-nama">NAMA STAFF</div>
+                    <div id="profilStaffRole" class="profil-role">ROLE</div>
+                    <div id="profilStaffNegara" class="profil-negara">🇮🇩 Indonesia</div>
+                    <div id="profilStaffSifat" class="profil-sifat-badge">🧠 Kepribadian</div>
+                </div>
+                <div class="profil-body">
+                    <div class="profil-card">
+                        <div class="profil-staff-buff-label">EFEK KEPELATIHAN</div>
+                        <div id="profilStaffBuff" class="profil-staff-buff-val">+0 POWER TIM</div>
+                    </div>
+                    <div class="profil-card">
+                        <div class="profil-card-label">ATRIBUT STAFF (Skala 1-99)</div>
+                        <div id="profilStaffAtribut" class="profil-staff-atribut-grid"></div>
+                    </div>
+                    <div class="profil-card">
+                        <div class="profil-card-label">DAFTAR TROFI</div>
+                        <div id="profilStaffTrofi" class="profil-karir-list"></div>
+                    </div>
+                    <div class="profil-card">
+                        <div class="profil-staff-info">Gaji: <span id="profilStaffGaji">Rp 0</span> / Musim</div>
+                        <div class="profil-staff-info"><span id="labelStaffHarga">Nilai Kontrak:</span> <span id="profilStaffHarga" style="color:var(--gold);font-weight:bold">Rp 0</span></div>
+                    </div>
+                    <button id="btnProfilRekrutStaff" class="modal-btn btn-rekrut-staff">REKRUT STAFF</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MODAL IN-GAME EDITOR (KOSMETIK)            -->
+        <!-- ========================================== -->
+        <div
+            id="modalEditor"
+            class="modal-overlay sembunyi" style="z-index: 10005"
+        >
+            <div class="modal-box modal-editor-box">
+                <div class="modal-editor-header">
+                    <div class="modal-editor-title">✏️ <span id="judulEditor">EDITOR DATABASE</span></div>
+                    <div class="modal-editor-hint">Hanya dapat mengubah nama & logo.</div>
+                </div>
+                <label class="form-label-modal">Ubah Nama:</label>
+                <input type="text" id="inputEditNama" class="form-input-modal" />
+                <div id="grupEditLogo" class="sembunyi">
+                    <label class="form-label-modal">Ubah Logo Tim (Link URL / Imgur):</label>
+                    <input type="text" id="inputEditLogo" placeholder="Contoh: https://i.imgur.com/logo.png" class="form-input-modal form-input-modal--sm" />
+                </div>
+                <div class="modal-btn-row">
+                    <button class="modal-btn btn-modal-cancel" onclick="document.getElementById('modalEditor').classList.add('sembunyi')">BATAL</button>
+                    <button class="modal-btn btn-modal-save" onclick="simpanEditan()">SIMPAN</button>
+                </div>
+            </div>
+        </div>
+
+        <div
+            id="customModal"
+            class="modal-overlay sembunyi" style="z-index: 10005"
+        >
+            <div class="modal-box">
+                <div id="modalTitle" class="modal-title">INFO</div>
+                <div id="modalDesc" class="modal-desc">Pesan di sini</div>
+                <button class="modal-btn" onclick="tutupModal()">OKE</button>
+            </div>
+        </div>
+        <!-- [NEW] Modal konfirmasi generik, pengganti window.confirm() bawaan browser.
+             NAMA DISENGAJA BEDA dari #modalKonfirmasi (modal "Peringatan Jual"
+             yang udah ada duluan di ui.js) biar gak tabrakan ID/fungsi. -->
+        <div id="modalKonfirmasiUmum" class="modal-overlay sembunyi" style="z-index: 10006">
+            <div class="modal-box">
+                <div id="konfirmasiUmumJudul" class="modal-title">Konfirmasi</div>
+                <div id="konfirmasiUmumPesan" class="modal-desc">Yakin mau lanjut?</div>
+                <div class="modal-btn-row">
+                    <button class="modal-btn btn-modal-cancel" onclick="window.tutupKonfirmasiUmum()">BATAL</button>
+                    <button id="konfirmasiUmumBtnYa" class="modal-btn btn-modal-save" onclick="window.eksekusiKonfirmasiUmum()">YA, LANJUT</button>
+                </div>
+            </div>
+        </div>
+        <!-- [NEW] Modal Error Catcher — nangkep exception yang bikin game
+             stuck/blank, biar user bisa screenshot pesannya buat dilaporin.
+             z-index PALING TINGGI di seluruh app (10010), harus selalu di
+             atas modal manapun yang lagi kebuka pas error terjadi. -->
+        <div id="modalErrorCatcher" class="modal-overlay sembunyi" style="z-index: 10010; background: rgba(0,0,0,0.85);">
+            <div class="modal-box" style="max-width: 340px; text-align: left;">
+                <div class="modal-title" style="color: #E5484D;">⚠️ Error Terdeteksi</div>
+                <div style="font-size: 12px; color: var(--text-2); margin-bottom: 8px;">
+                    Game mengalami error dan mungkin gak bisa lanjut. Tolong <b>screenshot halaman ini</b> dan kirim ke developer.
+                </div>
+                <div id="errorCatcherKonteks" style="font-size: 11px; color: var(--text-3); margin-bottom: 6px;"></div>
+                <div id="errorCatcherPesan" style="font-family: monospace; font-size: 11px; background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; max-height: 220px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: #E5484D;"></div>
+                <button class="modal-btn" style="margin-top: 14px;" onclick="getEl('modalErrorCatcher').classList.add('sembunyi')">OKE, SUDAH DI-SCREENSHOT</button>
+            </div>
+        </div>
+        <!-- [NEW v1.7] Fallback lapis-3 buat Export Save -- bulletproof,
+             gak gantung Web Share API atau <a download> yang bisa gak
+             kedukung di WebView APK tertentu. Tinggal select-all + copy. -->
+        <div id="modalExportManual" class="modal-overlay sembunyi" style="z-index: 10009">
+            <div class="modal-box" style="max-width: 360px; text-align: left;">
+                <div class="modal-title">📋 Export Manual</div>
+                <div style="font-size: 12px; color: var(--text-2); margin-bottom: 8px;">
+                    Download otomatis gak kedukung di device ini. Salin teks di bawah, terus tempel ke aplikasi Notes/file teks lain buat disimpan sebagai <code id="exportManualNamaFile"></code>.
+                </div>
+                <textarea id="exportManualTextarea" readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 10px; background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; resize: vertical; color: var(--text-1);"></textarea>
+                <div class="modal-btn-row" style="margin-top: 12px;">
+                    <button class="modal-btn btn-modal-cancel" onclick="getEl('modalExportManual').classList.add('sembunyi')">TUTUP</button>
+                    <button class="modal-btn btn-modal-save" onclick="window.salinExportManual()">SALIN KE CLIPBOARD</button>
+                </div>
+            </div>
+        </div>
+        <!-- [NEW v1.8] Jalur cadangan Import -- pasangan modal Export
+             manual di atas. Lengkapin loop buat WebView yang gak dukung
+             upload file dengan bener. -->
+        <div id="modalImportManual" class="modal-overlay sembunyi" style="z-index: 10009">
+            <div class="modal-box" style="max-width: 360px; text-align: left;">
+                <div class="modal-title">📥 Import via Paste Teks</div>
+                <div style="font-size: 12px; color: var(--text-2); margin-bottom: 8px;">
+                    Tempel (paste) teks save data yang udah kamu salin sebelumnya di sini.
+                </div>
+                <textarea id="importManualTextarea" placeholder="Tempel teks JSON save data di sini..." style="width: 100%; height: 160px; font-family: monospace; font-size: 10px; background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; resize: vertical; color: var(--text-1);"></textarea>
+                <div class="modal-btn-row" style="margin-top: 12px;">
+                    <button class="modal-btn btn-modal-cancel" onclick="getEl('modalImportManual').classList.add('sembunyi')">BATAL</button>
+                    <button class="modal-btn btn-modal-save" onclick="window.prosesImportManual()">PROSES IMPORT</button>
+                </div>
+            </div>
+        </div>
+        <div id="modalJuara" class="modal-overlay sembunyi" style="z-index: 10008">
+            <div class="champ-stage" id="champStage">
+                <div class="champ-glow"><div class="champ-glow__circle" id="champGlowCircle"><i class="fa-solid fa-trophy" id="champIcon"></i></div></div>
+                <div class="champ-eyebrow" id="champEyebrow">World Champion</div>
+                <div class="champ-title">JUARA DUNIA!</div>
+                <div class="champ-card">
+                    <div class="champ-team" id="champTeam">Nama Tim</div>
+                    <div class="champ-sub" id="champSub">Deskripsi</div>
+                </div>
+                <button class="champ-btn" onclick="tutupModalJuara()">Oke</button>
+            </div>
+        </div>
+        <div id="modalKontrakSponsor" class="modal-overlay sembunyi" style="z-index: 10008">
+            <div class="sponsor-signed-stage" id="sponsorSignedStage">
+                <div class="sponsor-signed-icon"><i class="fa-solid fa-handshake"></i></div>
+                <div class="sponsor-signed-title">Kontrak Ditandatangani!</div>
+                <div class="sponsor-signed-desc" id="sponsorSignedDesc">Deskripsi</div>
+                <div class="sponsor-signed-hero">
+                    <span class="sponsor-signed-hero__label">Dana Cair</span>
+                    <span class="sponsor-signed-hero__val" id="sponsorSignedDana">Rp 0</span>
+                </div>
+                <div id="sponsorSignedWarning" class="sponsor-signed-warning sembunyi"></div>
+                <button class="sponsor-signed-btn" onclick="tutupModalKontrakSponsor()">Oke</button>
+            </div>
+        </div>
+        <div id="modalNego" class="modal-overlay sembunyi">
+            <div class="modal-box nego-modal-box">
+                <div class="modal-title nego-modal-title title-icon-patch"><i class="fa-solid fa-handshake"></i><span>MEJA NEGOSIASI</span></div>
+                <div id="negoPlayerInfo" class="nego-player-info">Nama Pemain (OVR: 00)</div>
+                <div class="nego-demand-box">
+                    <div class="nego-demand-label">Tuntutan Pihak Lawan:</div>
+                    <div id="barisDemandTransfer" class="sembunyi nego-demand-row">
+                        Transfer: <span id="negoDemandTransfer" class="text-gold font-bold">Rp 0 Jt</span>
+                    </div>
+                    <div id="barisDemandGajiNormal" class="nego-demand-row">
+                        Gaji: <span id="negoDemandGaji" class="text-gold font-bold">Rp 0 Jt</span> / Musim
+                    </div>
+                    <div id="barisInfoGajiPinjam" class="sembunyi nego-demand-row">
+                        Gaji (ditanggung 100%): <span id="negoInfoGajiPinjam" class="text-gold font-bold">Rp 0 Jt</span> / Musim
+                    </div>
+                    <div class="nego-demand-row">
+                        Durasi: <span id="negoDemandDurasi" class="text-gold font-bold">0</span> Musim
+                    </div>
+                    <div id="barisDemandOpsiBeli" class="sembunyi nego-demand-row">
+                        Estimasi Opsi Beli: <span id="negoDemandOpsiBeli" class="text-gold font-bold">Rp 0 Jt</span>
+                    </div>
+                </div>
+                <div class="nego-proposal-box">
+                    <div class="nego-proposal-title">PROPOSAL MANAJER:</div>
+                    <div id="grupNegoTransfer" class="sembunyi">
+                        <label id="labelInputTransfer" class="form-label-modal">Biaya Transfer (Juta Rp):</label>
+                        <input type="number" id="inputNegoTransfer" class="form-input-nego" placeholder="Contoh: 20.5" />
+                    </div>
+                    <div id="grupNegoGaji">
+                        <label class="form-label-modal">Tawaran Gaji (Juta Rp):</label>
+                        <input type="number" id="inputNegoGaji" class="form-input-nego" placeholder="Contoh: 15.5" />
+                    </div>
+                    <label class="form-label-modal">Durasi Kontrak (Musim):</label>
+                    <input type="number" id="inputNegoDurasi" min="1" max="5" class="form-input-nego" placeholder="1 - 5" />
+                    <div id="grupNegoOpsiBeli" class="sembunyi" style="margin-top:12px; padding:10px 12px; border:1px solid var(--border-md); border-radius:6px; background:var(--surface-3);">
+                        <label for="cekNegoOpsiBeli" class="form-label-modal" style="display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer;">
+                            <input type="checkbox" id="cekNegoOpsiBeli" style="width:16px; height:16px; margin:0;" />
+                            Sertakan Opsi Beli
+                        </label>
+                        <input type="number" id="inputNegoOpsiBeli" class="form-input-nego" placeholder="Harga Opsi Beli (Juta Rp)" disabled />
+                    </div>
+                </div>
+                <div class="modal-btn-row">
+                    <button class="modal-btn btn-modal-cancel" onclick="tutupNego()">BATAL</button>
+                    <button class="modal-btn btn-modal-submit" onclick="ajukanTawaran()">AJUKAN</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener("change", function (e) {
+                if (e.target && e.target.id === "cekNegoOpsiBeli") {
+                    document.getElementById("inputNegoOpsiBeli").disabled = !e.target.checked;
+                }
+            });
+        </script>
+
+        <div id="modalKonfirmasi" class="modal-overlay sembunyi">
+            <div class="modal-box konfirmasi-modal-box">
+                <div class="modal-title konfirmasi-title">⚠️ PERINGATAN JUAL</div>
+                <div id="konfirmDesc" class="modal-desc konfirmasi-desc"></div>
+                <div class="modal-btn-row">
+                    <button class="modal-btn btn-modal-cancel" onclick="tutupKonfirmasi()">BATAL</button>
+                    <button class="modal-btn btn-modal-danger" onclick="eksekusiJualPemain()">YAKIN JUAL</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modalHasilMatch" class="modal-overlay sembunyi" style="align-items: flex-end;">
+            <div class="modal-hasil-sheet">
+
+                <!-- Title -->
+                <div class="hasil-title">📡 Hasil Pertandingan</div>
+
+                <!-- Header skor (fixed, tidak scroll) -->
+                <div id="hasilMatchSkor" class="hasil-skor-wrap"></div>
+
+                <!-- Scrollable body -->
+                <div class="hasil-scroll-body">
+                    <div id="hasilMatchMvp" class="hasil-mvp-box"></div>
+                    <div class="hasil-section-label">📡 Highlight Pertandingan</div>
+                    <div id="hasilMatchHighlight"></div>
+                </div>
+
+                <!-- Tombol sticky bawah -->
+                <div class="hasil-btn-wrap">
+                    <button class="modal-btn btn-lanjutkan" onclick="tutupHasilMatch()">LANJUTKAN</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modalSponsor" class="modal-overlay sembunyi">
+            <div class="modal-box sponsor-modal-box">
+                <div class="sponsor-modal-header">
+                    <button onclick="tutupDetailSponsor()" class="profil-btn-close">✖</button>
+                    <div class="sponsor-modal-header-title">DETAIL SPONSOR</div>
+                </div>
+                <div class="sponsor-modal-body">
+                    <div id="detailSponsorNama" class="sponsor-detail-nama">Nama Sponsor</div>
+                    <div class="sponsor-detail-table">
+                        <div class="sponsor-detail-row">
+                            <span class="sponsor-detail-key">Dana Segar</span>
+                            <span id="detailSponsorDana" class="sponsor-detail-val">Rp 0 Jt</span>
+                        </div>
+                        <div class="sponsor-detail-row">
+                            <span class="sponsor-detail-key">Bonus Juara</span>
+                            <span id="detailSponsorBonus" class="sponsor-detail-val">Rp 0 Jt</span>
+                        </div>
+                        <div class="sponsor-detail-row">
+                            <span class="sponsor-detail-key">Durasi Kontrak</span>
+                            <span id="detailSponsorDurasi" class="sponsor-detail-val">0 Musim</span>
+                        </div>
+                    </div>
+
+                    <button
+                        id="btnAmbilSponsorModal"
+                        class="modal-btn" style="background: #00B37E;
+                            color: #fff;
+                            border: none;
+                            width: 100%;
+                            padding: 12px;
+                            font-size: 12px;
+                            font-weight: bold;
+                            letter-spacing: 0.5px;
+                            cursor: pointer;
+                        "
+                    >
+                        TERIMA
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="layarGlobalPowerRanking" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold gpr-title-patch"><i class="fa-solid fa-crown gpr-title-icon-patch"></i><span class="gpr-title-text-patch">GLOBAL POWER RANKING</span></h2>
+                <button class="btn-kembali" onclick="bukaSubLayar('layarDuniaEsports')">Kembali</button>
+            </div>
+            <p class="dunia-desc">Peringkat prestise seluruh organisasi MLBB di dunia, dihitung dari Gelar Liga Domestik, MSC x EWC, dan M-Series.</p>
+
+            <div class="gpr-tabel-wrap-patch">
+                <table class="gpr-tabel gpr-tabel-compact-patch">
+                    <thead>
+                        <tr>
+                            <th style="width:6%">#</th>
+                            <th style="text-align:left; width:28%">TEAM</th>
+                            <th style="width:10%">POIN</th>
+                            <th style="width:10%">LIGA</th>
+                            <th style="width:10%">MSC</th>
+                            <th style="width:10%">M-SRS</th>
+                            <th style="width:26%">MOVE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="badanGlobalPowerRanking"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="modalBeritaLengkap" class="modal-overlay sembunyi" onclick="tutupBerita()">
+            <div class="modal-berita-box" id="modalBeritaBox">
+                <div class="modal-berita-header">
+                    <span class="modal-berita-title">BERITA MUSIM INI</span>
+                    <button class="modal-berita-close" onclick="tutupBerita()">✕</button>
+                </div>
+                <div id="listBeritaFull" class="modal-berita-body">
+                    <!-- Full berita dimasukin ke sini -->
+                </div>
+            </div>
+        </div>
+
+        <div id="layarKlasemenMPLID" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇮🇩 MPL <span class="text-merah">INDONESIA</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimMPLID">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailMPLID"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketID" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenMPLPH" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇵🇭 MPL <span style="color:#0038a8">PHILIPPINES</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimMPLPH">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailMPLPH"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketPH" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenMPLMY" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇲🇾 MPL <span class="text-gold">MALAYSIA</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimMPLMY">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailMPLMY"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketMY" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenMPLSG" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇸🇬 MPL <span class="text-merah">SINGAPORE</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimMPLSG">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailMPLSG"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketSG" class="bracket-scroll"></div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MSC x EWC 2026 - FASE 3: KLASEMEN 9 REGION BARU -->
+        <!-- ========================================== -->
+        <div id="layarKlasemenKH" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇰🇭 MPL <span style="color:#032ea1">CAMBODIA</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimKH">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailKH"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketKH" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenMM" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇲🇲 MSL <span style="color:#fecb00">MYANMAR</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimMM">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailMM"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketMM" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenMENA" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🌍 MPL <span style="color:#c09a5b">MENA</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimMENA">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailMENA"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketMENA" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenTR" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇹🇷 <span style="color:#e30a17">MLBB Turkiye Championship</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimTR">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailTR"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketTR" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenEECA" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🌍 <span style="color:#4a90d9">EECA</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimEECA">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailEECA"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketEECA" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenEA" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🌏 MCT <span style="color:#d63031">EAST ASIA</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimEA">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailEA"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketEA" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenAM" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🌎 MCT <span style="color:#00B37E">AMERICAS</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimAM">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailAM"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketAM" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenIN" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇮🇳 MLBB <span style="color:#ff9933">INDIA</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimIN">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailIN"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketIN" class="bracket-scroll"></div>
+        </div>
+
+        <div id="layarKlasemenWEU" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🌍 MLBB <span style="color:#6c5ce7">WESTERN EUROPE</span>
+                </h2>
+                <button
+                    class="btn-kembali"
+                    onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()"
+                >
+                    Kembali
+                </button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimWEU">1</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 35%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME<br />WIN</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenDetailWEU"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">HASIL PLAYOFFS</h3>
+            <div id="playoffBracketWEU" class="bracket-scroll"></div>
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- FASE 11: KLASEMEN MDL ID                   -->
+        <!-- ========================================== -->
+        <div id="layarKlasemenMDLID" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇮🇩 MDL <span class="text-gold">INDONESIA</span></h2>
+                <button class="btn-kembali" onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()">Kembali</button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimMDLID">1</span></p>
+            <div class="mdl-legend-row">
+                <span class="mdl-tag-afiliasi">AFILIASI</span> = Kebal degradasi &nbsp;
+                <span class="mdl-tag-independen">INDEPENDEN</span> = Bisa degradasi (Bottom 2 masuk Playoff Degradasi)
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 40%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenMDLID"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">PLAYOFF DEGRADASI</h3>
+            <div id="playoffDegradasiMDLLEN" class="bracket-scroll mdl-playoff-info">
+                <p style="color:var(--text-4);font-size:12px;text-align:center;padding:16px;">
+                    Playoff Degradasi dijalankan otomatis di akhir musim MDL ID & LEN.
+                </p>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- FASE 12: KLASEMEN MDL PH                   -->
+        <!-- ========================================== -->
+        <div id="layarKlasemenMDLPH" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇵🇭 MDL <span class="text-gold">PHILIPPINES</span></h2>
+                <button class="btn-kembali" onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()">Kembali</button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimMDLPH">1</span></p>
+            <div class="mdl-legend-row">
+                <span class="mdl-tag-afiliasi">AFILIASI</span> = Kebal degradasi &nbsp;
+                <span class="mdl-tag-independen">INDEPENDEN</span> = Bisa degradasi (Bottom 2 masuk Open Qualifier)
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:5%"></th>
+                        <th style="text-align:left;width:40%">TEAM</th>
+                        <th style="color:#E5484D">MATCH POIN</th>
+                        <th>MATCH<br/>W-L</th>
+                        <th style="color:#E5484D">NET<br/>GAME</th>
+                        <th>GAME<br/>W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenMDLPH"></tbody>
+            </table>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- FASE 11: KLASEMEN LEN                      -->
+        <!-- ========================================== -->
+        <div id="layarKlasemenLEN" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇮🇩 LIGA ESPORTS <span style="color:#cd7f32;">NASIONAL</span></h2>
+                <button class="btn-kembali" onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()">Kembali</button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimLEN">1</span></p>
+            <div class="mdl-legend-row">
+                <span style="color:#cd7f32;font-weight:700;">Top 2</span> = masuk Playoff Degradasi vs Bottom 2 Independen MDL ID
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%"></th>
+                        <th style="text-align: left; width: 40%">TEAM</th>
+                        <th style="color: #E5484D">MATCH POIN</th>
+                        <th>MATCH<br />W-L</th>
+                        <th style="color: #E5484D">NET<br />GAME</th>
+                        <th>GAME<br />W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenLEN"></tbody>
+            </table>
+            <h3 class="klasemen-playoff-title">PLAYOFF DEGRADASI</h3>
+            <div id="playoffDegradasiMDLLEN_viewLEN" class="bracket-scroll mdl-playoff-info">
+                <p style="color:var(--text-4);font-size:12px;text-align:center;padding:16px;">
+                    Playoff Degradasi dijalankan otomatis di akhir musim MDL ID & LEN.
+                </p>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- FASE 13: KLASEMEN MAL MY (2 CONFERENCE)    -->
+        <!-- ========================================== -->
+        <div id="layarKlasemenMALMY" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-putih">🇲🇾 MAL <span class="text-gold">MALAYSIA</span></h2>
+                <button class="btn-kembali" onclick="window._asalKlasemen==='layarDuniaEsports' ? bukaSubLayar('layarDuniaEsports') : navKeDashboard()">Kembali</button>
+            </div>
+            <p class="klasemen-judul">KLASEMEN MUSIM <span id="teksMusimMALMY">1</span></p>
+
+            <h3 class="klasemen-playoff-title">AFFILIATED CONFERENCE</h3>
+            <div class="mdl-legend-row">Kebal degradasi &nbsp; <span style="color:#2563EB;">Top 4</span> = masuk Playoff</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:5%"></th>
+                        <th style="text-align:left;width:40%">TEAM</th>
+                        <th style="color:#E5484D">MATCH POIN</th>
+                        <th>MATCH<br/>W-L</th>
+                        <th style="color:#E5484D">NET<br/>GAME</th>
+                        <th>GAME<br/>W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenAffiliatedMY"></tbody>
+            </table>
+
+            <h3 class="klasemen-playoff-title">CHALLENGER CONFERENCE</h3>
+            <div class="mdl-legend-row">
+                <span style="color:#2563EB;">Top 4</span> = masuk Playoff (Juara langsung promosi MPL MY) &nbsp;
+                <span class="mdl-tag-degradasi">!</span> = degradasi (diisi Open Qualifier)
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:5%"></th>
+                        <th style="text-align:left;width:40%">TEAM</th>
+                        <th style="color:#E5484D">MATCH POIN</th>
+                        <th>MATCH<br/>W-L</th>
+                        <th style="color:#E5484D">NET<br/>GAME</th>
+                        <th>GAME<br/>W-L</th>
+                    </tr>
+                </thead>
+                <tbody id="badanKlasemenChallengerMY"></tbody>
+            </table>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- FASE 14: KLAIM SLOT AFILIASI MPL           -->
+        <!-- ========================================== -->
+        <div id="layarKlaimAfiliasi" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold">🤝 BENTUK AFILIASI BARU</h2>
+                <button class="btn-kembali" onclick="bukaSubLayar('layarDuniaEsports')">Kembali</button>
+            </div>
+            <div id="klaimStatusEligibilitas" class="am-elig-box"></div>
+            <div id="klaimDaftarSlot" class="card-container am-target-list"></div>
+        </div>
+
+        <!-- MODAL KONFIRMASI KLAIM AFILIASI -->
+        <div id="modalKonfirmasiKlaim" class="modal-overlay sembunyi" style="z-index: 10006">
+            <div class="modal-box am-modal-box">
+                <div class="modal-title" style="color:#00B37E;">Konfirmasi Klaim Afiliasi</div>
+                <div id="klaimModalKonten" class="am-modal-konten"></div>
+                <div class="modal-btn-row" style="margin-top:14px;">
+                    <button class="modal-btn btn-modal-cancel" onclick="tutupModalKonfirmasiKlaim()">BATAL</button>
+                    <button class="modal-btn btn-green" id="klaimBtnKonfirmasi" onclick="">KONFIRMASI</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- FASE 17: MODAL LAPORAN HASIL TRIAL          -->
+        <!-- ========================================== -->
+        <div id="modalLaporanTrial" class="modal-overlay sembunyi" style="z-index: 10007">
+            <div class="modal-box trial-modal-box">
+                <div class="modal-title title-icon-patch" style="color:#5B3DF5;"><i class="fa-solid fa-clipboard-list"></i><span>Laporan Trial</span></div>
+                <div id="trialModalKonten" class="trial-modal-konten"></div>
+                <div class="modal-btn-row trial-modal-btn-row" id="trialModalAksi"></div>
+                <button class="modal-btn btn-modal-cancel btn-block" style="margin-top:10px;" onclick="tutupModalLaporanTrial()">TUTUP</button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- FASE 18: MODAL OPEN RECRUITMENT             -->
+        <!-- ========================================== -->
+        <div id="modalOpenRecruitment" class="modal-overlay sembunyi" style="z-index: 10007">
+            <div class="modal-box trial-modal-box">
+                <div class="modal-title" style="color:#7C3AED;">📢 Open Recruitment</div>
+                <div id="openRecKonten" class="trial-modal-konten"></div>
+                <div class="modal-btn-row" style="margin-top:14px;" id="openRecAksi"></div>
+                <button class="modal-btn btn-modal-cancel btn-block" style="margin-top:10px;" onclick="tutupModalOpenRecruitment()">TUTUP</button>
+            </div>
+        </div>
+
+        <div id="layarAkuisisiMerger" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold">🏦 AKUISISI &amp; MERGER MPL</h2>
+                <button class="btn-kembali" onclick="bukaSubLayar('layarDuniaEsports')">Kembali</button>
+            </div>
+            <div id="amStatusEligibilitas" class="am-elig-box"></div>
+            <div id="amDaftarTarget" class="card-container am-target-list"></div>
+        </div>
+
+        <!-- MODAL KONFIRMASI AKUISISI/MERGER -->
+        <div id="modalKonfirmasiAM" class="modal-overlay sembunyi" style="z-index: 10006">
+            <div class="modal-box am-modal-box">
+                <div class="modal-title" id="amModalTitle" style="color:#00B37E;">Konfirmasi</div>
+                <div id="amModalKonten" class="am-modal-konten"></div>
+                <div class="modal-btn-row" style="margin-top:14px;">
+                    <button class="modal-btn btn-modal-cancel" onclick="tutupModalKonfirmasiAM()">BATAL</button>
+                    <button class="modal-btn btn-green" id="amBtnKonfirmasi" onclick="">KONFIRMASI</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="layarFasilitas" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold">🏢 GAMING HOUSE (GH)
+                </h2>
+                <button class="btn-kembali" onclick="tutupSubLayar()">
+                    Tutup
+                </button>
+            </div>
+            <p class="fasilitas-desc">Tingkatkan fasilitas GH untuk menambah kapasitas roster dan staf.</p>
+            <div id="kontenFasilitas" class="fasilitas-content"></div>
+        </div>
+        <div id="layarEmail" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold">📬 KOTAK MASUK
+                </h2>
+                <button class="btn-kembali" onclick="tutupSubLayar()">
+                    Ke Menu Utama
+                </button>
+            </div>
+            <div id="listEmail" class="list-email-wrap"></div>
+        </div>
+
+        <div id="modalBacaEmail" class="modal-overlay sembunyi">
+            <div class="modal-box email-modal-box">
+                <div class="email-modal-header">
+                    <div class="email-header-row">
+                        <div id="bacaEmailPengirim" class="email-pengirim">Pengirim</div>
+                        <div id="bacaEmailTanggal" class="email-tanggal">Tanggal</div>
+                    </div>
+                    <div id="bacaEmailSubjek" class="email-subjek">Subjek Email</div>
+                </div>
+                <div id="bacaEmailIsi" class="email-isi">Isi pesan di sini...</div>
+                <button class="modal-btn btn-tutup-email" onclick="tutupBacaEmail()">TUTUP PESAN</button>
+            </div>
+        </div>
+        <!-- LAYAR FULL PROFIL TIM (TAB SYSTEM) -->
+        <div
+            id="layarDetailTim"
+            class="sub-layar sembunyi" style="padding-bottom: 55px"
+        >
+            <div class="header-sub">
+                <div class="detail-tim-header-inner">
+                    <img id="detailTimLogo" src="" class="detail-tim-logo" />
+                    <h2 id="detailTimHeaderNama" class="detail-tim-nama">NAMA TIM</h2>
+                    <button onclick="bukaEditor('tim_detail')" class="btn-edit-icon">✏️</button>
+                </div>
+                <button class="btn-kembali" onclick="tutupSubLayar()">Kembali</button>
+            </div>
+
+            <!-- TAB: TIM -->
+            <div id="tabDetailTim">
+                <div class="chem-container mb-sm">
+                    <div class="detail-tim-chem-label">TEAM CHEMISTRY</div>
+                    <div class="chem-bar-bg">
+                        <div id="detailTimChemBar" class="chem-bar-fill" style="width: 80%; background: linear-gradient(90deg, #0891B2, #00B37E);"></div>
+                    </div>
+                    <div id="detailTimChemText" class="detail-tim-chem-text">🔥 Tim sangat kompak!</div>
+                </div>
+
+                <div id="detailTimStaff" class="mb-sm"></div>
+                <div id="detailTimRoster" class="roster-overflow" style="padding-bottom:20px;"></div>
+            </div>
+
+            <!-- TAB: KEUANGAN -->
+            <div id="tabDetailKeuangan" class="sembunyi">
+                <div class="keuangan-saldo-box">
+                    <div class="keuangan-saldo-label">TOTAL SALDO KAS TIM:</div>
+                    <div id="detailTimKas" class="keuangan-saldo-val">Rp 0</div>
+                </div>
+                <div class="keuangan-riwayat-box">
+                    <div class="keuangan-riwayat-title">🏆 RIWAYAT JUARA</div>
+                    <div id="detailTimRiwayat"></div>
+                </div>
+            </div>
+
+            <!-- TAB: JADWAL -->
+            <div id="tabDetailJadwal" class="sembunyi">
+                <div
+                    id="detailTimLogMatch" class="log-container" style="height:75vh;padding-bottom:60px"
+                ></div>
+            </div>
+
+            <!-- NAVBAR BAWAH KHUSUS DETAIL TIM -->
+            <div class="nav-bawah">
+                <div
+                    id="btnTabDetailTim"
+                    class="nav-bawah-item aktif"
+                    onclick="gantiTabDetailTim('Tim')"
+                >
+                    Tim
+                </div>
+                <div
+                    id="btnTabDetailKeuangan"
+                    class="nav-bawah-item"
+                    onclick="gantiTabDetailTim('Keuangan')"
+                >
+                    Keuangan
+                </div>
+                <div
+                    id="btnTabDetailJadwal"
+                    class="nav-bawah-item"
+                    onclick="gantiTabDetailTim('Jadwal')"
+                >
+                    Jadwal
+                </div>
+            </div>
+        </div>
+        
+        <div id="layarFanbase" class="sub-layar sembunyi" style="padding-bottom:60px;">
+    <div class="header-sub">
+        <h2 class="text-gold" style="font-size:15px;"><i class="fa-solid fa-users"></i> FANBASE &amp; MERCHANDISE</h2>
+        <button class="btn-kembali" onclick="tutupSubLayar()">Kembali</button>
+    </div>
+
+    <!-- STATISTIK UTAMA FANBASE -->
+    <div class="fanbase-stat-grid">
+        <div class="fanbase-stat-card">
+            <div class="fanbase-stat-label">TOTAL PENGGEMAR</div>
+            <div id="statFanbaseBesar" class="fanbase-stat-value--fans">0rb</div>
+            <div class="fanbase-stat-sublabel">orang aktif</div>
+        </div>
+        <div class="fanbase-stat-card">
+            <div class="fanbase-stat-label">MORAL FANS</div>
+            <div id="statMoralFansDetail" class="fanbase-stat-value--moral">70/100</div>
+            <div class="fanbase-stat-sublabel">tingkat kepuasan</div>
+        </div>
+        <div class="fanbase-stat-card">
+            <div class="fanbase-stat-label">STATUS</div>
+            <div id="statStatusKritik" class="fanbase-stat-value--status">MENDUKUNG</div>
+        </div>
+        <div class="fanbase-stat-card">
+            <div class="fanbase-stat-label">TOTAL MERCH REVENUE</div>
+            <div id="statTotalMerchRevenue" class="fanbase-stat-value--revenue">Rp 0</div>
+        </div>
+    </div>
+
+    <!-- SECTION MERCHANDISE -->
+    <div class="fanbase-merch-header">
+        <div class="fanbase-merch-title"><i class="fa-solid fa-bag-shopping"></i> MERCHANDISE AKTIF</div>
+        <button onclick="window.bukaTambahMerchandise()" class="btn-add-merch">+ Tambah Item</button>
+    </div>
+
+    <div id="listMerchandiseDiJual">
+        <div class="empty-state">
+            <span class="empty-state-text">Belum Ada Merchandise</span>
+            <span class="empty-state-sub">Tambahkan item baru untuk mulai berjualan</span>
+        </div>
+    </div>
+
+</div>
+        
+        <!-- Safety guard: bukaLayarFanbase didefinisikan di fanbase.js (load terakhir).
+             Stub ini mencegah TypeError jika elemen render sebelum fanbase.js siap.
+             fanbase.js akan override ini dengan implementasi aslinya. -->
+        <script>
+            window.bukaLayarFanbase = function() {
+                console.warn("[guard] fanbase.js belum siap. Coba lagi setelah halaman penuh ter-load.");
+            };
+            // Tab dashboard dihapus — semua konten 1 scroll. gantiDashTab jadi no-op.
+            // [FIX] Parameter dibuang (bukan cuma didiemin) karena emang gak
+            // pernah dipake — caller lama yang masih ngirim argumen tetap
+            // aman, JS ngediemin argumen ekstra yang gak ada parameternya.
+            window.gantiDashTab = function() {
+                // no-op: dashboard sekarang 1 halaman, tidak ada tab
+            };
+        </script>
+        <script src="database.js"></script>
+        <script src="transfer.js"></script>
+        <script src="ui.js"></script>
+        <script src="custom_select_patch.js"></script>
+        <script src="patches_financial.js"></script>
+        <script src="mdl_len_engine.js"></script>
+        <script src="trial_system_patch.js"></script>
+        <script src="calendar_system_patch.js"></script>
+        <script src="close_score_patch.js"></script>
+        <script src="script.js"></script>
+        <script src="msc_ewc_engine.js"></script>
+        <script src="m7_engine.js"></script>
+        <script src="akademi_v3.js"></script>
+        <script src="patches_roster.js"></script>
+        <script src="match_engine.js"></script>
+        <script src="patches_postgame.js"></script>
+        <script src="merchandise_system_v3_patch.js"></script>
+        <script src="global_power_ranking.js"></script>
+        <!-- fanbase_patch.js sudah digabung ke fanbase.js v2.0 -->
+        <script src="loan_buyoption_patch.js"></script>
+        <script src="meta_display_patch.js"></script>
+        <script src="staff_trofi_patch.js"></script>
+        <script src="msc_prize_patch.js"></script>
+        <script src="sponsor_pool_expansion_patch.js"></script>
+        <script src="sponsor_negotiation_patch.js"></script>
+        <script src="ai_sponsor_economy_patch.js"></script>
+        <!-- ui_patches.js HARUS paling akhir -- dia numpang lewat (wrap)
+             fungsi-fungsi dari SEMUA file di atas, jadi kalau ini dimuat
+             lebih awal, wrapping-nya gagal nempel diam-diam (function
+             belum ke-define pas ui_patches.js jalan). -->
+        <script src="ui_patches.js"></script>
+        <div id="modalProposalPelatih" class="modal-pelatih sembunyi">
+            <div class="modal-pelatih__box">
+                <h3 class="modal-pelatih__title">PROPOSAL KONTRAK</h3>
+                <p id="teksInfoPelatih" class="modal-pelatih__info"></p>
+                <label class="form-label-sm">Target Tim (Musim Ini):</label>
+                <select id="inputTargetPelatih" class="form-select">
+                    <option value="Hindari Juru Kunci (Sangat Mudah)">Hindari Juru Kunci (Sangat Mudah)</option>
+                    <option value="Lolos Playoff / Top 6 (Mudah)">Lolos Playoff / Top 6 (Mudah)</option>
+                    <option value="Top 4 / Upper Bracket (Normal)" selected>Top 4 / Upper Bracket (Normal)</option>
+                    <option value="Masuk Grand Final (Sulit)">Masuk Grand Final (Sulit)</option>
+                    <option value="Juara Turnamen (Sangat Sulit)">Juara Turnamen (Sangat Sulit)</option>
+                </select>
+                <label class="form-label-sm">Gaji per Bulan (Rp):</label>
+                <input type="number" id="inputGajiPelatih" class="form-input-dark" />
+                <label class="form-label-sm">Durasi Kontrak:</label>
+                <select id="inputDurasiPelatih" class="form-select">
+                    <option value="1">1 Musim</option>
+                    <option value="2">2 Musim</option>
+                    <option value="3">3 Musim</option>
+                    <option value="4">4 Musim</option>
+                    <option value="5">5 Musim</option>
+                </select>
+                <label class="form-label-sm">Bonus Pencapaian Target (Rp):</label>
+                <input type="number" id="inputBonusPelatih" value="0" class="form-input-dark" style="margin-bottom:25px" />
+                <div class="modal-btn-row">
+                    <button onclick="tutupModalProposalPelatih()" class="modal-btn btn-dark-red" style="flex:1">Batal</button>
+                    <button onclick="submitProposalPelatih()" class="modal-btn btn-green" style="flex:1">Ajukan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- REDESIGN: HUB ORGANISASI                    -->
+        <!-- Menggabungkan: Keuangan & Sponsor, Fanbase, -->
+        <!-- Fasilitas GH (termasuk Akademi), Akuisisi   -->
+        <!-- ========================================== -->
+        <div id="layarHubOrganisasi" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold"><i class="fa-solid fa-building"></i> ORGANISASI</h2>
+                <button class="btn-kembali" onclick="tutupSubLayar()">Kembali</button>
+            </div>
+            <p class="hub-intro">Urus sisi bisnis klub — keuangan, sponsor, basis penggemar, dan fasilitas.</p>
+            <div class="hub-grid">
+                <div class="hub-card" onclick="window.bukaDariHub('layarKeuanganSponsor','layarHubOrganisasi')">
+                    <div class="hub-card__icon" style="background:var(--gold-dim);color:var(--gold);"><i class="fa-solid fa-sack-dollar"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Keuangan &amp; Sponsor</div>
+                        <div class="hub-card__desc">Kas tim, kontrak sponsor, riwayat transaksi.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+                <div class="hub-card" onclick="bukaModalHutangBank()">
+                    <div class="hub-card__icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-building-columns"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Pinjaman Bank</div>
+                        <div class="hub-card__desc">Ajukan pinjaman modal untuk kebutuhan tim.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+                <div class="hub-card" onclick="window.bukaDariHub(null,'layarHubOrganisasi');window.bukaLayarFanbase()">
+                    <div class="hub-card__icon" style="background:rgba(8,145,178,0.12);color:var(--cyan);"><i class="fa-solid fa-users"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Fanbase</div>
+                        <div class="hub-card__desc">Dukungan penggemar, moral, merchandise.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+                <div class="hub-card" onclick="window.bukaDariHub('layarFasilitas','layarHubOrganisasi')">
+                    <div class="hub-card__icon" style="background:var(--accent-dim);color:var(--accent);"><i class="fa-solid fa-house-laptop"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Fasilitas GH &amp; Akademi</div>
+                        <div class="hub-card__desc">Upgrade Gaming House dan kembangkan prospek akademi.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- REDESIGN: HUB LAINNYA                        -->
+        <!-- Menggabungkan: Email, Riwayat, Jadwal&Hasil, -->
+        <!-- Liga Dunia, Database, Tentang Game           -->
+        <!-- ========================================== -->
+        <div id="layarHubLainnya" class="sub-layar sembunyi">
+            <div class="header-sub">
+                <h2 class="text-gold"><i class="fa-solid fa-gear"></i> LAINNYA</h2>
+                <button class="btn-kembali" onclick="tutupSubLayar()">Kembali</button>
+            </div>
+            <div class="hub-section-label">Informasi</div>
+            <div class="hub-grid">
+                <div class="hub-card" onclick="window.bukaDariHub('layarEmail','layarHubLainnya')">
+                    <div class="hub-card__icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-envelope"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Kotak Masuk</div>
+                        <div class="hub-card__desc">Pesan, tawaran, dan notifikasi organisasi.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+                <div class="hub-card" onclick="window.bukaDariHub('layarJadwalHasil','layarHubLainnya')">
+                    <div class="hub-card__icon" style="background:rgba(8,145,178,0.12);color:var(--cyan);"><i class="fa-solid fa-calendar-days"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Jadwal &amp; Hasil</div>
+                        <div class="hub-card__desc">Log pertandingan musim ini.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+                <div class="hub-card" onclick="window.bukaDariHub('layarRiwayat','layarHubLainnya')">
+                    <div class="hub-card__icon" style="background:var(--gold-dim);color:var(--gold);"><i class="fa-solid fa-trophy"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Riwayat Juara</div>
+                        <div class="hub-card__desc">Catatan gelar dan pencapaian klub.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+                <div class="hub-card" onclick="window.bukaDariHub('layarDuniaEsports','layarHubLainnya')">
+                    <div class="hub-card__icon" style="background:var(--green-dim);color:var(--green);"><i class="fa-solid fa-earth-asia"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Liga Dunia</div>
+                        <div class="hub-card__desc">Klasemen seluruh region esports global.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+            </div>
+            <div class="hub-section-label">Sistem</div>
+            <div class="hub-grid">
+                <div class="hub-card" onclick="window.bukaDatabase()">
+                    <div class="hub-card__icon" style="background:var(--accent-dim);color:var(--accent);"><i class="fa-solid fa-database"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Database &amp; Save</div>
+                        <div class="hub-card__desc">Export, import, atau pasang database modder.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+                <div class="hub-card" onclick="keluarDanSave()">
+                    <div class="hub-card__icon" style="background:var(--orange-dim);color:var(--orange);"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Save &amp; Keluar</div>
+                        <div class="hub-card__desc">Simpan progres karir saat ini.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+                <div class="hub-card" onclick="window.bukaTentangGame()">
+                    <div class="hub-card__icon"><i class="fa-solid fa-circle-info"></i></div>
+                    <div class="hub-card__body">
+                        <div class="hub-card__title">Tentang Game</div>
+                        <div class="hub-card__desc">Versi, kredit, dan informasi developer.</div>
+                    </div>
+                    <div class="hub-card__arrow">›</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- REDESIGN: GLOBAL BOTTOM NAVIGATION           -->
+        <!-- Dashboard / Tim / Transfer / Organisasi / Lainnya -->
+        <!-- ========================================== -->
+        <div id="globalBottomNav" class="sembunyi">
+            <div class="gnav-item aktif" data-target="dashboard" onclick="window.navKeDashboard()">
+                <div class="gnav-item__pill"></div>
+                <span class="gnav-item__icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+                </span>
+                <span class="gnav-item__label">Dashboard</span>
+            </div>
+            <div class="gnav-item" data-target="tim" onclick="window.navKeTim()">
+                <div class="gnav-item__pill"></div>
+                <span class="gnav-item__icon">
+                    <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 14.2c2.6.2 4.5 2.2 4.5 4.8"/></svg>
+                </span>
+                <span class="gnav-item__label">Tim</span>
+            </div>
+            <div class="gnav-item" data-target="transfer" onclick="window.navKeTransfer()">
+                <div class="gnav-item__pill"></div>
+                <span class="gnav-item__icon">
+                    <svg viewBox="0 0 24 24"><path d="M4 8h13"/><path d="M13.5 3.5L17 8l-3.5 4.5"/><path d="M20 16H7"/><path d="M10.5 20.5L7 16l3.5-4.5"/></svg>
+                </span>
+                <span class="gnav-item__label">Transfer</span>
+            </div>
+            <div class="gnav-item" data-target="organisasi" onclick="window.navKeOrganisasi()">
+                <div class="gnav-item__pill"></div>
+                <span class="gnav-item__icon">
+                    <svg viewBox="0 0 24 24"><rect x="4" y="9" width="7" height="12"/><rect x="13" y="3" width="7" height="18"/><path d="M6.5 12h2M6.5 15h2M6.5 18h2M15.5 6h2M15.5 9h2M15.5 12h2M15.5 15h2"/></svg>
+                </span>
+                <span class="gnav-item__label">Organisasi</span>
+            </div>
+            <div class="gnav-item" data-target="lainnya" onclick="window.navKeLainnya()" style="position:relative;">
+                <div class="gnav-item__pill"></div>
+                <span class="gnav-item__icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><path d="M12 3v3M12 18v3M4.2 7.5l2.6 1.5M17.2 15l2.6 1.5M4.2 16.5l2.6-1.5M17.2 9l2.6-1.5"/></svg>
+                </span>
+                <span class="gnav-item__label">Lainnya</span>
+                <span id="badgeEmail" class="gnav-item__badge sembunyi">0</span>
+            </div>
+        </div>
+        <script>
+            // [NEW] Registrasi Service Worker -- lihat sw.js buat penjelasan
+            // lengkap. Dibungkus try/catch + cek fitur biar aman di browser
+            // lama yang gak dukung Service Worker (fallback: game tetep
+            // jalan normal, cuma tanpa cache offline).
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker.register("sw.js").catch((err) => {
+                        console.error("[SW] Registrasi gagal:", err);
+                    });
+                });
+            }
+        </script>
+    </body>
+</html>
