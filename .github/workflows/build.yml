@@ -34,7 +34,7 @@ jobs:
           sed -i 's/if ("serviceWorker" in navigator)/if (false)/' www/index.html
           grep -c 'if (false)' www/index.html
           sed -i 's/initial-scale=1.0"/initial-scale=1.0, viewport-fit=cover"/' www/index.html
-          printf '\nbody { padding-top: max(env(safe-area-inset-top, 0px), 34px) !important; }\n' >> www/style.css
+          printf '\nbody{padding-top:max(env(safe-area-inset-top,0px),34px)!important}\n.sub-layar{padding-top:max(env(safe-area-inset-top,0px),34px)!important}\n.main-menu__topbar{padding-top:calc(max(env(safe-area-inset-top,0px),34px) + 12px)!important}\n.roster-tabbar{top:calc(max(env(safe-area-inset-top,0px),34px) + 8px)!important}\n' >> www/style.css
 
       - name: Build project Android
         run: |
@@ -82,6 +82,13 @@ jobs:
               }
           }
           EOF2
+
+      - name: Pakai kunci tanda tangan tetap
+        run: |
+          mkdir -p ~/.android
+          cp debug.keystore ~/.android/debug.keystore
+          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/" android/app/build.gradle
+          grep -n versionCode android/app/build.gradle
 
       - name: Build APK debug
         working-directory: android
