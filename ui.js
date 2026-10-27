@@ -3942,8 +3942,8 @@ function updateDashboard() {
                       : _isMerahMini
                         ? (i % 2 === 0 ? "rgba(229,72,77,0.08)" : "rgba(229,72,77,0.14)")
                         : i % 2 === 0
-                          ? "#F7F9FC"
-                          : "#F1F3F8";
+                          ? "var(--surface-2)"
+                          : "var(--surface-3)";
 
             htmlTabelMini += `<tr style="background: ${bgColor} !important;"><td style="${rowStyle} font-size: 14px; font-weight: bold;">${i + 1}</td><td style="text-align: left; cursor: pointer;" onclick="bukaInfoTim('${tim.nama}')"><div class="team-cell"><img src="${tim.logo}" class="logo-tim" onerror="this.src='https://ui-avatars.com/api/?name=${tim.nama}&background=333&color=fff'"> <strong>${tim.nama}</strong></div></td><td style="color: #E5484D; font-weight: bold;">${tim.poin}</td> <td>${tim.matchW} - ${tim.matchL}</td><td style="color: #E5484D; font-weight: bold;">${tim.netGame > 0 ? "+" + tim.netGame : tim.netGame}</td><td>${tim.gameW} - ${tim.gameL}</td></tr>`;
         }
