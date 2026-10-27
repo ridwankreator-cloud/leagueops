@@ -13,13 +13,15 @@
 // kepasang begitu online lagi, gak nyangkut selamanya di versi lama).
 // ==========================================
 
-const CACHE_NAME = "mlbb-manager-cache-v1";
+const CACHE_NAME = "mlbb-manager-cache-v2";
 
 const ASSETS_TO_CACHE = [
     "./",
     "index.html",
     "style.css",
     "ui_patches.css",
+    "settings_theme.css",
+    "settings_patch.js",
     "ai_sponsor_economy_patch.js",
     "akademi_v3.js",
     "calendar_system_patch.js",

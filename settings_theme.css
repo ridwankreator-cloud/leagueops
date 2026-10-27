@@ -1,0 +1,228 @@
+/* ==========================================
+   SETTINGS THEME — tema terang / gelap + layar Pengaturan
+   Tema gelap bekerja lewat atribut data-theme="dark" di <html>.
+   Semua warna ngikut token --surface/--text/dll dari style.css,
+   jadi cukup token-nya aja yang ditimpa di sini.
+   ========================================== */
+
+/* ---------- 1. TOKEN MODE GELAP ---------- */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg-base:    #0E1118;
+    --surface-1:  #161A23;
+    --surface-2:  #1B202B;
+    --surface-3:  #212736;
+    --surface-4:  #2A3142;
+
+    --accent:      #7A63FF;
+    --accent-dim:  rgba(122,99,255,0.18);
+    --accent-glow: rgba(122,99,255,0.28);
+
+    --gold:       #E2B445;
+    --gold-dim:   rgba(226,180,69,0.16);
+    --gold-glow:  rgba(226,180,69,0.26);
+
+    --blue:       #6296FF;
+    --blue-dim:   rgba(98,150,255,0.16);
+    --red:        #FF6B70;
+    --red-dim:    rgba(255,107,112,0.16);
+    --green:      #25CC9B;
+    --green-dim:  rgba(37,204,155,0.16);
+    --orange:     #FF9A4D;
+    --orange-dim: rgba(255,154,77,0.16);
+    --purple:     #7A63FF;
+    --cyan:       #2EC6E3;
+
+    --text-1:     #E9EDF5;
+    --text-2:     #A9B2C2;
+    --text-3:     #7E889A;
+    --text-4:     #5A6477;
+
+    --border:     #2A3141;
+    --border-md:  #3A4357;
+    --border-gold: rgba(226,180,69,0.40);
+
+    --red-soft:   #FF9B9F;
+    --green-soft: #6FE3BE;
+
+    --shadow-sm:  0 1px 2px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.30);
+    --shadow:     0 2px 8px rgba(0,0,0,0.40), 0 6px 20px rgba(0,0,0,0.32);
+    --shadow-lg:  0 8px 24px rgba(0,0,0,0.50), 0 2px 6px rgba(0,0,0,0.40);
+    --shadow-xl:  0 20px 60px rgba(0,0,0,0.65);
+}
+
+/* ---------- 2. WARNA YANG DITULIS LANGSUNG DI CSS ---------- */
+html[data-theme="dark"] .glass { background: rgba(22,26,35,0.82); }
+html[data-theme="dark"] .nav-bawah,
+html[data-theme="dark"] #globalBottomNav { background: rgba(22,26,35,0.96) !important; }
+html[data-theme="dark"] .profil-modal-header { background: rgba(14,17,24,0.92); }
+html[data-theme="dark"] .sifat-pekeras { color: #FF8A8F; }
+
+/* ---------- 3. WARNA INLINE DARI TEMPLATE JS/HTML ----------
+   Latar terang yang ditulis langsung di atribut style="...". */
+html[data-theme="dark"] [style*="background:#f7f9fc" i],
+html[data-theme="dark"] [style*="background: #f7f9fc" i],
+html[data-theme="dark"] [style*="background-color:#f7f9fc" i],
+html[data-theme="dark"] [style*="background-color: #f7f9fc" i] { background: var(--surface-2) !important; }
+html[data-theme="dark"] [style*="background:#f1f3f8" i],
+html[data-theme="dark"] [style*="background: #f1f3f8" i],
+html[data-theme="dark"] [style*="background-color:#f1f3f8" i],
+html[data-theme="dark"] [style*="background-color: #f1f3f8" i] { background: var(--surface-3) !important; }
+html[data-theme="dark"] [style*="background:#e9ecf2" i],
+html[data-theme="dark"] [style*="background: #e9ecf2" i],
+html[data-theme="dark"] [style*="background-color:#e9ecf2" i],
+html[data-theme="dark"] [style*="background-color: #e9ecf2" i] { background: var(--surface-4) !important; }
+
+/* Teks gelap/ungu yang ditulis inline -> dibalik biar kebaca di latar gelap */
+html[data-theme="dark"] [style^="color:#12151c" i],
+html[data-theme="dark"] [style^="color: #12151c" i],
+html[data-theme="dark"] [style*=";color:#12151c" i],
+html[data-theme="dark"] [style*=";color: #12151c" i],
+html[data-theme="dark"] [style*=" color:#12151c" i],
+html[data-theme="dark"] [style*=" color: #12151c" i] { color: var(--text-1) !important; }
+html[data-theme="dark"] [style^="color:#5c6472" i],
+html[data-theme="dark"] [style^="color: #5c6472" i],
+html[data-theme="dark"] [style*=";color:#5c6472" i],
+html[data-theme="dark"] [style*=";color: #5c6472" i],
+html[data-theme="dark"] [style*=" color:#5c6472" i],
+html[data-theme="dark"] [style*=" color: #5c6472" i],
+html[data-theme="dark"] [style^="color:#666" i],
+html[data-theme="dark"] [style^="color: #666" i],
+html[data-theme="dark"] [style*=";color:#666" i],
+html[data-theme="dark"] [style*=";color: #666" i],
+html[data-theme="dark"] [style*=" color:#666" i],
+html[data-theme="dark"] [style*=" color: #666" i],
+html[data-theme="dark"] [style^="color:#555" i],
+html[data-theme="dark"] [style^="color: #555" i],
+html[data-theme="dark"] [style*=";color:#555" i],
+html[data-theme="dark"] [style*=";color: #555" i],
+html[data-theme="dark"] [style*=" color:#555" i],
+html[data-theme="dark"] [style*=" color: #555" i],
+html[data-theme="dark"] [style^="color:#444" i],
+html[data-theme="dark"] [style^="color: #444" i],
+html[data-theme="dark"] [style*=";color:#444" i],
+html[data-theme="dark"] [style*=";color: #444" i],
+html[data-theme="dark"] [style*=" color:#444" i],
+html[data-theme="dark"] [style*=" color: #444" i] { color: var(--text-2) !important; }
+html[data-theme="dark"] [style^="color:#5b3df5" i],
+html[data-theme="dark"] [style^="color: #5b3df5" i],
+html[data-theme="dark"] [style*=";color:#5b3df5" i],
+html[data-theme="dark"] [style*=";color: #5b3df5" i],
+html[data-theme="dark"] [style*=" color:#5b3df5" i],
+html[data-theme="dark"] [style*=" color: #5b3df5" i],
+html[data-theme="dark"] [style^="color:#7c3aed" i],
+html[data-theme="dark"] [style^="color: #7c3aed" i],
+html[data-theme="dark"] [style*=";color:#7c3aed" i],
+html[data-theme="dark"] [style*=";color: #7c3aed" i],
+html[data-theme="dark"] [style*=" color:#7c3aed" i],
+html[data-theme="dark"] [style*=" color: #7c3aed" i],
+html[data-theme="dark"] [style^="color:#6c5ce7" i],
+html[data-theme="dark"] [style^="color: #6c5ce7" i],
+html[data-theme="dark"] [style*=";color:#6c5ce7" i],
+html[data-theme="dark"] [style*=";color: #6c5ce7" i],
+html[data-theme="dark"] [style*=" color:#6c5ce7" i],
+html[data-theme="dark"] [style*=" color: #6c5ce7" i] { color: var(--accent) !important; }
+html[data-theme="dark"] [style^="color:#2563eb" i],
+html[data-theme="dark"] [style^="color: #2563eb" i],
+html[data-theme="dark"] [style*=";color:#2563eb" i],
+html[data-theme="dark"] [style*=";color: #2563eb" i],
+html[data-theme="dark"] [style*=" color:#2563eb" i],
+html[data-theme="dark"] [style*=" color: #2563eb" i] { color: var(--blue) !important; }
+html[data-theme="dark"] [style^="color:#8a6d1f" i],
+html[data-theme="dark"] [style^="color: #8a6d1f" i],
+html[data-theme="dark"] [style*=";color:#8a6d1f" i],
+html[data-theme="dark"] [style*=";color: #8a6d1f" i],
+html[data-theme="dark"] [style*=" color:#8a6d1f" i],
+html[data-theme="dark"] [style*=" color: #8a6d1f" i] { color: var(--gold) !important; }
+html[data-theme="dark"] [style*="solid #e9ecf2" i] { border-color: var(--border) !important; }
+
+/* ---------- 4. LAYAR PENGATURAN ---------- */
+.pengaturan-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+}
+.pengaturan-card__judul {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-1);
+}
+.pengaturan-card__desc {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--text-3);
+}
+.tema-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+}
+.tema-opsi {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 10px;
+    text-align: left;
+    font: inherit;
+    color: var(--text-1);
+    background: var(--surface-2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+.tema-opsi.aktif {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.tema-opsi__preview {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    height: 74px;
+    padding: 9px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(128,128,128,0.25);
+}
+.tema-opsi__preview span {
+    display: block;
+    height: 12px;
+    border-radius: 6px;
+}
+.tema-opsi__preview span:first-child { width: 55%; }
+.tema-opsi__preview span:last-child  { width: 80%; }
+.tema-opsi--terang .tema-opsi__preview { background: #EDF0F5; }
+.tema-opsi--terang .tema-opsi__preview span:first-child { background: #5B3DF5; }
+.tema-opsi--terang .tema-opsi__preview span:last-child  { background: #FFFFFF; box-shadow: 0 1px 2px rgba(18,21,28,0.12); }
+.tema-opsi--gelap .tema-opsi__preview { background: #0E1118; }
+.tema-opsi--gelap .tema-opsi__preview span:first-child { background: #7A63FF; }
+.tema-opsi--gelap .tema-opsi__preview span:last-child  { background: #1B202B; }
+.tema-opsi__label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 13px;
+}
+.tema-opsi__label i { color: var(--text-3); }
+.tema-opsi.aktif .tema-opsi__label i { color: var(--accent); }
+.tema-opsi__cek {
+    margin-left: auto;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity .2s var(--ease);
+}
+.tema-opsi.aktif .tema-opsi__cek { opacity: 1; }
+.tema-opsi__desc {
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--text-3);
+}
