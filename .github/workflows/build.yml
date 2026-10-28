@@ -20,10 +20,20 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Siapin folder www
         run: |
           mkdir www
-          cp index.html *.js *.css *.png www/
+          cp index.html *.js *.css www/
+          for f in *.png; do
+            case "$f" in
+              icon_source.png|splash_source.png) ;;
+              *) cp "$f" www/ ;;
+            esac
+          done
           rm -f www/sw.js
 
       - name: Bundle font dan ikon (biar offline)
@@ -37,16 +47,23 @@ jobs:
           printf '\nbody{padding-top:max(env(safe-area-inset-top,0px),34px)!important}\n.sub-layar{padding-top:max(env(safe-area-inset-top,0px),34px)!important}\n.main-menu__topbar{padding-top:calc(max(env(safe-area-inset-top,0px),34px) + 12px)!important}\n.roster-tabbar{top:calc(max(env(safe-area-inset-top,0px),34px) + 8px)!important}\n' >> www/style.css
           printf '\n.profil-modal-header{padding-top:calc(max(env(safe-area-inset-top,0px),34px) + 18px)!important}\n.profil-btn-close,.profil-btn-edit{top:calc(max(env(safe-area-inset-top,0px),34px) + 12px)!important}\n' >> www/style.css
 
-      - name: Build project Android
+      - name: Buat project Android
         run: |
           npm install
           npx cap add android
-          npx cap sync android
+
+      - name: Ikon, splash, dan orientasi potret
+        run: |
+          python3 -m pip install --quiet pillow numpy
+          python3 make_assets.py
+
+      - name: Sinkronkan web ke Android
+        run: npx cap sync android
 
       - name: Mode full screen (sembunyiin status bar)
         run: |
-          cat > android/app/src/main/java/com/leagueops/desk/MainActivity.java <<'EOF2'
-          package com.leagueops.desk;
+          cat > android/app/src/main/java/com/mobamanager/app/MainActivity.java <<'EOF2'
+          package com.mobamanager.app;
 
           import android.os.Build;
           import android.os.Bundle;
@@ -121,5 +138,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: LeagueOpsDesk-debug-apk
+          name: MobaManager-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
