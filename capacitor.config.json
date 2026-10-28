@@ -1,6 +1,6 @@
 {
-  "appId": "com.leagueops.desk",
-  "appName": "League Ops Desk",
+  "appId": "com.mobamanager.app",
+  "appName": "Moba Manager",
   "webDir": "www",
   "android": {
     "allowMixedContent": true

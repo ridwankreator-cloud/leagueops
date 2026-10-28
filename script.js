@@ -78,7 +78,7 @@ let emailBelumDibaca = 0;
 let bankBerita = [
     {
         tanggal: "Pra-Musim",
-        teks: "Selamat datang di <span>MLBB Pro Circuit Manager</span>! Bangun tim impianmu."
+        teks: "Selamat datang di <span>Moba Manager</span>! Bangun tim impianmu."
     }
 ];
 
@@ -8998,7 +8998,7 @@ window.tutupPilihTim = function () {
 window.bukaTentangGame = function () {
     bukaModal(
         "TENTANG GAME",
-        "<b>MLBB Pro Circuit Manager</b><br><br>Game simulasi e-sports karya anak bangsa.<br>Dikembangkan oleh: <b>Muhammad Fauzi Ridwan</b>.<br><br>Jadilah CEO, bangun dinasti juara, dan buktikan taktikmu di panggung global!",
+        "<b>Moba Manager</b><br><br>Game simulasi e-sports karya anak bangsa.<br>Dikembangkan oleh: <b>Muhammad Fauzi Ridwan</b>.<br><br>Jadilah CEO, bangun dinasti juara, dan buktikan taktikmu di panggung global!",
         "#2563EB"
     );
 };
@@ -9708,8 +9708,8 @@ window.exportGame = async function () {
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
                 files: [file],
-                title: "Save Game MLBB Pro Circuit Manager",
-                text: "Export save data dari MLBB Pro Circuit Manager."
+                title: "Save Game Moba Manager",
+                text: "Export save data dari Moba Manager."
             });
             return; // berhasil, selesai
         }
