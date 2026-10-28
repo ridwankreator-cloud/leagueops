@@ -226,3 +226,18 @@ html[data-theme="dark"] [style*="solid #e9ecf2" i] { border-color: var(--border)
     line-height: 1.4;
     color: var(--text-3);
 }
+
+/* ---------- 5. KARTU PILIHAN BAHASA ---------- */
+.tema-opsi__preview--bahasa {
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-3);
+}
+.tema-opsi__preview--bahasa span {
+    width: auto !important;
+    height: auto !important;
+    font-size: 34px;
+    line-height: 1;
+    background: none !important;
+    box-shadow: none !important;
+}
