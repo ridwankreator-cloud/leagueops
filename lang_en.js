@@ -553,7 +553,12 @@
         "Latar gelap, lebih adem di mata saat malam.": "Dark background, easier on the eyes at night.",
         "Pilih bahasa tampilan. Beberapa teks yang dibuat otomatis oleh game (seperti berita dan highlight pertandingan) mungkin masih berbahasa Indonesia.": "Choose the display language. Some text generated automatically by the game (such as news and match highlights) may still be in Indonesian.",
         "HARI": "DAYS",
-        "Nama Pemain (OVR: 00)": "Player Name (OVR: 00)"
+        "Nama Pemain (OVR: 00)": "Player Name (OVR: 00)",
+        "Analis": "Analyst",
+        "Pelatih Kepala": "Head Coach",
+        "Asisten Pelatih": "Assistant Coach",
+        "Pelatih": "Coach",
+        "Asisten": "Assistant"
     },
 
         regex: [
@@ -569,7 +574,9 @@
             [/^(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu), (\d{1,2}) (Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember) (\d{4})$/,
                 function (m) { return HARI[m[1]] + ", " + BULAN[m[3]] + " " + parseInt(m[2], 10) + ", " + m[4]; }],
             [/^(\d{1,2}) (Jan|Feb|Mar|Apr|Mei|Jun|Jul|Agu|Agt|Sep|Okt|Nov|Des)$/,
-                function (m) { return BULAN3[m[2]] + " " + m[1]; }]
+                function (m) { return BULAN3[m[2]] + " " + m[1]; }],
+            [/^(\d{1,2}) (Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)$/,
+                function (m) { return BULAN[m[2]] + " " + m[1]; }]
         ]
     };
 })();

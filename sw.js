@@ -13,7 +13,7 @@
 // kepasang begitu online lagi, gak nyangkut selamanya di versi lama).
 // ==========================================
 
-const CACHE_NAME = "mlbb-manager-cache-v3";
+const CACHE_NAME = "mlbb-manager-cache-v4";
 
 const ASSETS_TO_CACHE = [
     "./",
@@ -23,6 +23,7 @@ const ASSETS_TO_CACHE = [
     "settings_theme.css",
     "settings_patch.js",
     "lang_en.js",
+    "lang_en_dyn.js",
     "lang_patch.js",
     "ai_sponsor_economy_patch.js",
     "akademi_v3.js",

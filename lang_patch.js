@@ -50,7 +50,7 @@
     // Terjemahkan satu potongan teks. Hasilnya null kalau gak ada di kamus.
     function terjemah(teks) {
         var k = rapikan(teks);
-        if (!k) return null;
+        if (!k || !/[A-Za-z]/.test(k)) return null; // angka/simbol saja: gak perlu dicek
         var h = KAMUS.exact[k];
         if (typeof h === "string") return h;
         var r = KAMUS.regex;
